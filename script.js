@@ -38,7 +38,7 @@ function salvarLead() {
     const tag = document.getElementById('tag').value;
     const dataRetorno = document.getElementById('data-retorno').value;
     const valorInput = document.getElementById('valor').value;
-    const notas = document.getElementById('notas').value;
+    const notasTexto = document.getElementById('notas').value.trim();
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');  
 
@@ -48,6 +48,15 @@ function salvarLead() {
         day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'  
     });  
 
+    // Cria o histórico inicial com a primeira nota (se houver)
+    let historicoInicial = [];
+    if (notasTexto !== "") {
+        historicoInicial.push({
+            data: dataAtual,
+            texto: notasTexto
+        });
+    }
+
     const novoLead = {  
         id: Date.now().toString(),  
         nome,  
@@ -55,7 +64,7 @@ function salvarLead() {
         tag,
         dataRetorno,
         valor: valorNumerico,  
-        notas,  
+        historico: historicoInicial,  
         etapa: 'contato',  
         data: dataAtual  
     };  
@@ -63,6 +72,32 @@ function salvarLead() {
     leads.push(novoLead);  
     atualizarCRM();  
     fecharModal();
+}
+
+// Função para adicionar uma nova nota na linha do tempo do lead
+function adicionarNota(id) {
+    const novaNotaTexto = prompt("Digite a nova anotação / histórico:");
+    if (!novaNotaTexto || novaNotaTexto.trim() === "") return;
+
+    const dataAtual = new Date().toLocaleDateString('pt-BR', {  
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'  
+    });
+
+    leads = leads.map(lead => {
+        if (lead.id === id) {
+            // Garante compatibilidade caso o lead seja antigo e não tenha o array historico
+            if (!lead.historico) lead.historico = [];
+            
+            // Adiciona a nova nota no topo do histórico
+            lead.historico.unshift({
+                data: dataAtual,
+                texto: novaNotaTexto.trim()
+            });
+        }
+        return lead;
+    });
+
+    atualizarCRM();
 }
 
 function atualizarCRM() {
@@ -88,7 +123,6 @@ function buscarLeads() {
     const buscaInput = document.getElementById('busca');
     const termo = buscaInput ? buscaInput.value.toLowerCase() : '';
     
-    // Pega o valor selecionado no filtro de tag
     const tagFiltroInput = document.getElementById('filtro-tag-topo');
     const termoTag = tagFiltroInput ? tagFiltroInput.value : '';
 
@@ -109,10 +143,18 @@ function buscarLeads() {
 
     leads.forEach(lead => {  
         const correspondeNome = lead.nome.toLowerCase().includes(termo);  
-        const correspondeNotas = lead.notas && lead.notas.toLowerCase().includes(termo);  
+        
+        // Verifica se o termo está em alguma das notas do histórico
+        let correspondeNotas = false;
+        if (lead.historico && Array.isArray(lead.historico)) {
+            correspondeNotas = lead.historico.some(n => n.texto.toLowerCase().includes(termo));
+        } else if (lead.notas) {
+            // Compatibilidade com cadastros antigos
+            correspondeNotas = lead.notas.toLowerCase().includes(termo);
+        }
+
         const correspondeTag = termoTag === '' || lead.tag === termoTag;
 
-        // Só mostra se passar na pesquisa de texto E no filtro da tag
         if ((correspondeNome || correspondeNotas) && correspondeTag) {  
             etapasComMatch[lead.etapa] = true;  
             contadores[lead.etapa] += 1;  
@@ -155,7 +197,6 @@ function buscarLeads() {
                 infoTempo = `<span style="font-size: 11px; color: ${corSla}; font-weight: bold; margin-left: auto;">${diasArredondados > 0 ? diasArredondados + ' dias no funil' : 'Entrou hoje'}</span>`;
             }
 
-            // Lógica para mostrar as Tags
             let badgeTag = '';
             if (lead.tag) {
                 let classeTag = '';
@@ -166,28 +207,51 @@ function buscarLeads() {
                 badgeTag = `<div class="tag-badge ${classeTag}">${lead.tag}</div>`;
             }
 
-            // Lógica para mostrar a Data de Retorno
             let badgeDataRetorno = '';
             if (lead.dataRetorno && lead.etapa !== 'fechado') {
                 const dataSplit = lead.dataRetorno.split('-');
-                const dataFormatada = `${dataSplit[2]}/${dataSplit[1]}/${dataSplit[0]}`; // DD/MM/YYYY
+                const dataFormatada = `${dataSplit[2]}/${dataSplit[1]}/${dataSplit[0]}`; 
                 
                 const dataObj = new Date(lead.dataRetorno + "T00:00:00");
                 const hoje = new Date();
-                hoje.setHours(0,0,0,0); // Zera as horas para comparar apenas os dias
+                hoje.setHours(0,0,0,0);
 
                 let icone = "📅";
                 let classeData = "";
 
                 if (dataObj < hoje) {
                     icone = "🚨";
-                    classeData = "data-atrasada"; // Passou da data
+                    classeData = "data-atrasada";
                 } else if (dataObj.getTime() === hoje.getTime()) {
                     icone = "🔔";
-                    classeData = "data-atrasada"; // É hoje!
+                    classeData = "data-atrasada";
                 }
 
                 badgeDataRetorno = `<div class="data-retorno ${classeData}">${icone} Retorno: ${dataFormatada}</div>`;
+            }
+
+            // Monta o HTML do Histórico de Anotações
+            let htmlHistorico = '';
+            let listaNotas = lead.historico || [];
+            
+            // Compatibilidade com leads antigos que usavam apenas .notas
+            if (listaNotas.length === 0 && lead.notas) {
+                listaNotas = [{ data: lead.data || 'N/A', texto: lead.notas }];
+            }
+
+            if (listaNotas.length > 0) {
+                htmlHistorico += `<div class="historico-container">`;
+                listaNotas.forEach(nota => {
+                    htmlHistorico += `
+                        <div class="nota-item">
+                            <span class="nota-data">${nota.data}:</span>
+                            <span>${nota.texto}</span>
+                        </div>
+                    `;
+                });
+                htmlHistorico += `</div>`;
+            } else {
+                htmlHistorico = `<p class="historico-container" style="color: #64748b; font-size: 11px; text-align: center;">Sem anotações</p>`;
             }
 
             card.innerHTML = `  
@@ -203,9 +267,15 @@ function buscarLeads() {
                     ${infoTempo}
                 </div>
                 ${badgeDataRetorno}
-                <p class="notas">${lead.notas || 'Sem anotações'}</p>  
-                <span style="font-size: 11px; color: #64748b; display: block; margin-top: 10px; font-style: italic;">📅 Cadastrado em: ${lead.data || 'N/A'}</span>  
-                <div class="card-acoes" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">  
+                
+                ${htmlHistorico}
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <button onclick="adicionarNota('${lead.id}')" style="color: #34d399; background: none; border: none; font-size: 11px; font-weight: 600; cursor: pointer; padding: 0;">+ Adicionar Nota</button>
+                    <span style="font-size: 10px; color: #64748b; font-style: italic;">Cadastrado: ${lead.data || 'N/A'}</span>
+                </div>
+
+                <div class="card-acoes" style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">  
                     <button onclick="mudarEtapa('${lead.id}')" style="color: #818cf8; text-decoration: underline; font-weight: 500; background: none; border: none; font-size: 12px; cursor: pointer;">Mover Etapa ➜</button>  
                     <button onclick="excluirLead('${lead.id}')" style="color: #f87171; text-decoration: underline; background: none; border: none; font-size: 12px; cursor: pointer;">Excluir</button>  
                 </div>  
