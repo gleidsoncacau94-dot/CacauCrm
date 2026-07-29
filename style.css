@@ -1,0 +1,10 @@
+/* Ajustes finos para o efeito de arrastar e soltar (Drag and Drop) */
+.drag-card {
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.drag-card:active {
+    cursor: grabbing;
+    transform: scale(1.02);
+}
+
