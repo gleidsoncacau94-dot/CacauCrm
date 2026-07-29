@@ -46,8 +46,8 @@
         </div>
     </main>
 
-    <!-- Modal de Cadastro -->
-    <div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <!-- Modal de Cadastro Corrigido (Começa Escondido) -->
+    <div id="modal" style="display: none;" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
         <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 w-full max-w-md shadow-2xl">
             <h3 class="text-xl font-bold mb-4 text-indigo-400">Cadastrar Novo Lead</h3>
             <div class="space-y-3">
@@ -56,7 +56,7 @@
                 <textarea id="notas" placeholder="Anotações" class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white h-24"></textarea>
             </div>
             
-            <!-- Botões do Formulário com Interações Avançadas -->
+            <!-- Botões do Formulário Interativos -->
             <div class="mt-5 flex justify-end space-x-2">
                 <button onclick="fecharModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 active:scale-95 active:bg-gray-700 text-white font-semibold rounded-lg transition-all duration-150 cursor-pointer">
                     Cancelar
