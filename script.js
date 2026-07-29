@@ -1,6 +1,9 @@
 let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
 let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
 
+// Guarda quais colunas o usuário clicou para expandir e "Ver Mais"
+let colunasExpandidas = { contato: false, proposta: false, fechado: false };
+
 function abrirModal() { 
     document.getElementById('modal').style.display = 'flex'; 
 }
@@ -57,6 +60,12 @@ function atualizarCRM() {
     buscarLeads();
 }
 
+// Função acionada quando o usuário clica no botão "Ver Mais"
+function alternarVerMais(etapa) {
+    colunasExpandidas[etapa] = !colunasExpandidas[etapa];
+    buscarLeads(); // Recarrega a tela aplicando a expansão
+}
+
 function buscarLeads() {
     const buscaInput = document.getElementById('busca');
     const termo = buscaInput ? buscaInput.value.toLowerCase() : '';
@@ -74,6 +83,9 @@ function buscarLeads() {
     let contadores = { contato: 0, proposta: 0, fechado: 0 };
     let etapasComMatch = { contato: false, proposta: false, fechado: false };
 
+    // Remove botões e avisos antigos da tela antes de redesenhar
+    document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());
+
     leads.forEach(lead => {
         const correspondeNome = lead.nome.toLowerCase().includes(termo);
         const correspondeNotas = lead.notas && lead.notas.toLowerCase().includes(termo);
@@ -81,6 +93,11 @@ function buscarLeads() {
         if (correspondeNome || correspondeNotas) {
             etapasComMatch[lead.etapa] = true;
             contadores[lead.etapa] += 1;
+
+            // REGRA DA SUA SOLICITAÇÃO: Se a coluna NÃO estiver expandida, esconde a partir do 5º cliente
+            if (contadores[lead.etapa] > 4 && !colunasExpandidas[lead.etapa] && termo.length === 0) {
+                return; // Pula a criação do cartão (deixa ele totalmente oculto)
+            }
 
             const card = document.createElement('div');
             card.className = "drag-card";
@@ -102,17 +119,32 @@ function buscarLeads() {
         }
     });
 
-    // Remove avisos antigos de rolagem se existirem
-    document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());
-
-    // Mostra o indicador se a contagem daquela coluna for maior que 3
+    // Cria o botão dinâmico de "Ver Mais" ou "Recolher" baseado na quantidade
     Object.keys(contadores).forEach(etapa => {
-        if (contadores[etapa] > 3) {
-            const container = document.getElementById(`col-${etapa}`);
-            const aviso = document.createElement('div');
-            aviso.className = "aviso-oculto";
-            aviso.innerText = `➕ Mais ${contadores[etapa] - 3} clientes ocultos • Role para baixo`;
-            container.parentElement.appendChild(aviso);
+        const containerCards = document.getElementById(`col-${etapa}`);
+        
+        // Aplica o travamento de rolagem via código na caixa de cartões
+        if (colunasExpandidas[etapa]) {
+            containerCards.style.overflowY = "auto"; // Libera a rolagem se clicou em ver mais
+        } else {
+            containerCards.style.overflowY = "hidden"; // Tranca e congela a rolagem no modo normal
+        }
+
+        if (contadores[etapa] > 4 && termo.length === 0) {
+            const botaoVerMais = document.createElement('button');
+            botaoVerMais.className = "aviso-oculto";
+            botaoVerMais.style.width = "100%";
+            botaoVerMais.style.cursor = "pointer";
+            
+            if (colunasExpandidas[etapa]) {
+                botaoVerMais.innerText = `▲ Recolher lista (Mostrando todos)`;
+                botaoVerMais.style.backgroundColor = "#334155";
+            } else {
+                botaoVerMais.innerText = `🔽 Ver Mais (+${contadores[etapa] - 4} ocultos)`;
+            }
+            
+            botaoVerMais.onclick = () => alternarVerMais(etapa);
+            containerCards.parentElement.appendChild(botaoVerMais);
         }
     });
 
@@ -128,7 +160,7 @@ function buscarLeads() {
     if (porcentagemMeta > 100) porcentagemMeta = 100;
     document.getElementById('barra-meta-progresso').style.width = `${porcentagemMeta}%`;
 
-    // Filtro de busca inteligente corrigido
+    // Filtro de busca inteligente (Esconde colunas vazias)
     Object.keys(colunasFisicas).forEach(etapa => {
         if (termo.length > 0) {
             colunasFisicas[etapa].style.setProperty('display', etapasComMatch[etapa] ? 'block' : 'none', 'important');
