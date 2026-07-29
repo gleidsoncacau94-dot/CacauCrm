@@ -49,8 +49,10 @@
         .barra-meta-progresso { background: linear-gradient(90deg, #4f46e5, #34d399); height: 100%; width: 0%; transition: width 0.4s ease; }  
         .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; }  
         
-        #busca { width: 100%; max-width: 280px; padding: 10px 15px; background-color: #334155; border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }  
-        #busca:focus { border-color: #6366f1; }  
+        #busca, #filtro-tag-topo { padding: 10px 15px; background-color: #334155; border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }  
+        #busca { width: 100%; max-width: 200px; }
+        #filtro-tag-topo { width: 100%; max-width: 180px; }
+        #busca:focus, #filtro-tag-topo:focus { border-color: #6366f1; }  
         
         .btn-principal { background-color: #4f46e5; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); }  
         .btn-principal:active { transform: scale(0.95); }  
@@ -101,6 +103,17 @@
         .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }  
         .drag-card .notas { background-color: #0f172a; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0; }  
           
+        /* Sistema de Tags e Datas */
+        .tag-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; margin-bottom: 8px; }
+        .tag-indicacao { background-color: #8b5cf6; color: #fff; }
+        .tag-ligacao { background-color: #3b82f6; color: #fff; }
+        .tag-whatsapp { background-color: #10b981; color: #fff; }
+        .tag-terceiros { background-color: #f59e0b; color: #fff; }
+
+        .data-retorno { font-size: 11px; color: #fbbf24; display: flex; align-items: center; gap: 4px; margin-top: 6px; font-weight: 600; }
+        .data-atrasada { color: #ef4444; animation: piscar 1.5s infinite; }
+        @keyframes piscar { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
         .btn-whatsapp {  
             background-color: #128c7e;  
             color: white;  
@@ -119,7 +132,8 @@
 
         .modal-overlay { background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }  
         .modal-content { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }  
-        .modal-content input, .modal-content textarea { width: 93%; padding: 10px; background-color: #334155; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 12px; }  
+        .modal-content input, .modal-content textarea, .modal-content select { width: 93%; padding: 10px; background-color: #334155; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 12px; }  
+        .campo-label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500; }
     </style>
 </head>  
 <body>  
@@ -138,10 +152,19 @@
         </div>  
     </div>  
     <div class="topo-acoes">  
+        <!-- Novo filtro por Tags -->
+        <select id="filtro-tag-topo" onchange="buscarLeads()">
+            <option value="">Todas as Tags</option>
+            <option value="Indicação">Indicação</option>
+            <option value="Cliente Ligação">Cliente Ligação</option>
+            <option value="Cliente WhatsApp">Cliente WhatsApp</option>
+            <option value="Vai pensar com terceiros">Vai pensar com terceiros</option>
+        </select>
+
         <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente...">  
         
-        <!-- Novos botões de Backup -->
-        <button onclick="exportarBackup()" class="btn-secundario">💾 Salvar Backup</button>
+        <!-- Botões de Backup -->
+        <button onclick="exportarBackup()" class="btn-secundario">💾 Backup</button>
         <button onclick="importarBackup()" class="btn-secundario">📂 Restaurar</button>
         <input type="file" id="input-importar" style="display: none" accept=".json" onchange="processarImportacao(event)">
         
@@ -171,10 +194,25 @@
 <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; padding: 16px;" class="modal-overlay">  
     <div class="modal-content">  
         <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 16px; font-size: 20px; font-weight: bold;">Cadastrar Novo Lead</h3>  
+        
         <input type="text" id="nome" placeholder="Nome do Cliente">  
         <input type="tel" id="telefone" placeholder="WhatsApp (Ex: 85999998888)">  
+        
+        <label class="campo-label">Tag do Lead:</label>
+        <select id="tag">
+            <option value="">Sem Tag</option>
+            <option value="Indicação">Indicação</option>
+            <option value="Cliente Ligação">Cliente Ligação</option>
+            <option value="Cliente WhatsApp">Cliente WhatsApp</option>
+            <option value="Vai pensar com terceiros">Vai pensar com terceiros</option>
+        </select>
+
+        <label class="campo-label">Data de Retorno (Opcional):</label>
+        <input type="date" id="data-retorno">
+
         <input type="text" id="valor" placeholder="Valor Estimado (R$)">  
-        <textarea id="notas" placeholder="Anotações" style="height: 80px; resize: none; font-family: sans-serif;"></textarea>  
+        <textarea id="notas" placeholder="Anotações" style="height: 60px; resize: none; font-family: sans-serif;"></textarea>  
+        
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">  
             <button onclick="fecharModal()" style="background-color: #475569; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;">Cancelar</button>  
             <button onclick="salvarLead()" style="background-color: #4f46e5; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold;">Salvar</button>  
@@ -198,7 +236,7 @@
     }  
 </script>  
 
-<script src="./script.js?v=23"></script>
+<script src="./script.js?v=24"></script>
 
 </body>  
 </html>
