@@ -104,12 +104,10 @@ function buscarLeads() {
             
             const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // SOLUÇÃO DEFINITIVA: Concatenação tradicional com a barra "/" inclusa após wa.me
+            // Executa a função segura passando as strings limpas
             let botaoWhatsHTML = '';
             if (lead.telefone) {
-                const textoMensagem = "Olá " + lead.nome + ", tudo bem? Aqui é o Gleidson.";
-                const mensagem = encodeURIComponent(textoMensagem);
-                botaoWhatsHTML = '<a href="https://wa.me' + lead.telefone + '?text=' + mensagem + '" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>';
+                botaoWhatsHTML = '<button onclick="dispararWhatsapp(\'' + lead.telefone + '\', \'' + lead.nome + '\')" class="btn-whatsapp">💬 WhatsApp</button>';
             }
 
             card.innerHTML = `
