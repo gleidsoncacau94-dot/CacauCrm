@@ -49,7 +49,6 @@
         .barra-meta-progresso { background: linear-gradient(90deg, #4f46e5, #34d399); height: 100%; width: 0%; transition: width 0.4s ease; }  
         .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; }  
         
-        /* Dashboard Ajustado para 2 colunas */
         .dashboard-container {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -142,6 +141,8 @@
         .data-atrasada { color: #ef4444; animation: piscar 1.5s infinite; }
         @keyframes piscar { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
+        .alerta-sla { background-color: rgba(239, 68, 68, 0.15) !important; border: 1px solid #ef4444 !important; }
+
         .btn-whatsapp {  
             background-color: #128c7e;  
             color: white;  
@@ -198,7 +199,6 @@
     </div>  
 </header>  
 
-<!-- Dashboard Otimizado (Conversão e Tempo Médio) -->
 <section style="margin-top: 24px;">
     <div class="dashboard-container">
         <div class="dash-card">
@@ -273,7 +273,7 @@
     }  
 </script>  
 
-<script src="./script.js?v=27"></script>
+<script src="./script.js?v=28"></script>
 
 </body>  
 </html>
