@@ -32,7 +32,7 @@
         header h1 { font-size: 26px; font-weight: bold; color: #818cf8; margin: 0; }  
         .topo-acoes { display: flex; flex-direction: column; gap: 12px; width: 100%; }  
         @media (min-width: 640px) {  
-            .topo-acoes { flex-direction: row; justify-content: flex-end; align-items: center; }  
+            .topo-acoes { flex-direction: row; justify-content: flex-end; align-items: center; flex-wrap: wrap; }  
         }  
         .painel-meta {  
             background-color: #0f172a;  
@@ -48,10 +48,18 @@
         .barra-meta-fundo { background-color: #334155; border-radius: 4px; height: 8px; width: 100%; overflow: hidden; }  
         .barra-meta-progresso { background: linear-gradient(90deg, #4f46e5, #34d399); height: 100%; width: 0%; transition: width 0.4s ease; }  
         .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; }  
+        
         #busca { width: 100%; max-width: 280px; padding: 10px 15px; background-color: #334155; border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }  
         #busca:focus { border-color: #6366f1; }  
+        
         .btn-principal { background-color: #4f46e5; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); }  
         .btn-principal:active { transform: scale(0.95); }  
+
+        /* Botões de Backup */
+        .btn-secundario { background-color: #334155; color: #cbd5e1; padding: 10px 15px; border-radius: 8px; font-weight: 600; border: 1px solid #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-secundario:active { transform: scale(0.95); }
+        .btn-secundario:hover { background-color: #475569; color: #fff; }
+        
         main { padding: 24px; display: grid; grid-template-columns: 1fr; gap: 24px; }  
         @media (min-width: 768px) { main { grid-template-columns: repeat(3, 1fr); } }  
         
@@ -86,7 +94,6 @@
           
         .aviso-oculto { text-align: center; font-size: 12px; color: #a5b4fc; background-color: #0f172a; padding: 10px; border-radius: 8px; margin-top: 12px; border: 1px dashed #4338ca; font-weight: 500; }  
         
-        /* ADICIONADO CURSOR DE ARRASTAR */
         .drag-card { background-color: #334155 !important; border: 1px solid #475569 !important; border-radius: 8px !important; padding: 16px !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important; cursor: grab; }  
         .drag-card:active { cursor: grabbing; }
 
@@ -132,31 +139,35 @@
     </div>  
     <div class="topo-acoes">  
         <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente...">  
+        
+        <!-- Novos botões de Backup -->
+        <button onclick="exportarBackup()" class="btn-secundario">💾 Salvar Backup</button>
+        <button onclick="importarBackup()" class="btn-secundario">📂 Restaurar</button>
+        <input type="file" id="input-importar" style="display: none" accept=".json" onchange="processarImportacao(event)">
+        
         <button onclick="abrirModal()" class="btn-principal">+ Novo Lead</button>  
     </div>  
 </header>  
 
-<!-- Quadro Kanban com Eventos de Arrastar e Soltar (ondragover / ondrop) -->  
+<!-- Quadro Kanban Dinâmico -->  
 <main>  
-    <!-- Contato -->  
     <div class="coluna-kanban">  
         <h2 style="color: #fbbf24; margin: 0 0 16px 0;" id="titulo-contato">📌 Contato Inicial (0)</h2>  
         <div id="col-contato" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'contato')"></div>  
     </div>  
 
-    <!-- Proposta -->  
     <div class="coluna-kanban">  
         <h2 style="color: #818cf8; margin: 0 0 16px 0;" id="titulo-proposta">📄 Proposta Enviada (0)</h2>  
         <div id="col-proposta" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'proposta')"></div>  
     </div>  
 
-    <!-- Fechado -->  
     <div class="coluna-kanban">  
         <h2 style="color: #34d399; margin: 0 0 16px 0;" id="titulo-fechado">🎉 Contrato Fechado (0)</h2>  
         <div id="col-fechado" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'fechado')"></div>  
     </div>  
 </main>  
 
+<!-- Formulário Modal Flutuante -->  
 <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; padding: 16px;" class="modal-overlay">  
     <div class="modal-content">  
         <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 16px; font-size: 20px; font-weight: bold;">Cadastrar Novo Lead</h3>  
@@ -187,7 +198,7 @@
     }  
 </script>  
 
-<script src="./script.js?v=22"></script>
+<script src="./script.js?v=23"></script>
 
 </body>  
 </html>
