@@ -102,10 +102,10 @@ function buscarLeads() {
         }
     });
 
-    // Remove avisos antigos de rolagem se já existirem
+    // Remove avisos antigos de rolagem se existirem
     document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());
 
-    // Adiciona o indicador visual dinâmico de "Ver mais na rolagem" se tiver mais de 3 leads
+    // Mostra o indicador se a contagem daquela coluna for maior que 3
     Object.keys(contadores).forEach(etapa => {
         if (contadores[etapa] > 3) {
             const container = document.getElementById(`col-${etapa}`);
@@ -128,12 +128,12 @@ function buscarLeads() {
     if (porcentagemMeta > 100) porcentagemMeta = 100;
     document.getElementById('barra-meta-progresso').style.width = `${porcentagemMeta}%`;
 
-    // Filtro de busca inteligente (Esconde colunas vazias)
+    // Filtro de busca inteligente corrigido
     Object.keys(colunasFisicas).forEach(etapa => {
         if (termo.length > 0) {
-            colunasFisicas[etapa].style.display = etapasComMatch[etapa] ? 'block' : 'none';
+            colunasFisicas[etapa].style.setProperty('display', etapasComMatch[etapa] ? 'block' : 'none', 'important');
         } else {
-            colunasFisicas[etapa].style.display = 'block';
+            colunasFisicas[etapa].style.setProperty('display', 'block', 'important');
         }
     });
 }
