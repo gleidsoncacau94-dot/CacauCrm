@@ -22,7 +22,7 @@ function salvarLead() {
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');
 
-    // Registra a data e hora exatas do cadastro
+    // Captura data e hora atuais de forma profissional
     const dataAtual = new Date().toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
@@ -37,7 +37,7 @@ function salvarLead() {
         valor: valor || '0',
         notas,
         etapa: 'contato',
-        data: dataAtual // Salva a data no histórico do cliente
+        data: dataAtual
     };
 
     leads.push(novoLead);
@@ -67,11 +67,11 @@ function buscarLeads() {
             card.className = "drag-card";
             
             card.innerHTML = `
-                <h4 style="font-weight: bold; margin-bottom: 4px;">${lead.nome}</h4>
-                <p class="valor" style="margin: 0; font-size: 14px; font-weight: 600;">R$ ${lead.valor}</p>
-                <p class="notas">${lead.notas || 'Sem anotações'}</p>
-                <!-- Exibe a data e hora de criação do lead -->
-                <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 10px; font-style: italic;">📅 Cadastrado em: ${lead.data || 'N/A'}</span>
+                <h4 style="font-weight: bold; margin-top: 0; margin-bottom: 6px; font-size: 16px; color: #fff;">${lead.nome}</h4>
+                <p class="valor" style="margin: 0; font-size: 14px; font-weight: 600; color: #4ade80;">R$ ${lead.valor}</p>
+                <p class="notas" style="background-color: #1e293b; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0;">${lead.notas || 'Sem anotações'}</p>
+                <!-- Histórico de data adicionado de forma sutil -->
+                <span style="font-size: 11px; color: #64748b; display: block; margin-top: 10px; font-style: italic;">📅 Cadastrado em: ${lead.data || 'N/A'}</span>
                 <div class="card-acoes" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">
                     <button onclick="mudarEtapa('${lead.id}')" style="color: #818cf8; text-decoration: underline; font-weight: 500; background: none; border: none; font-size: 12px; cursor: pointer;">Mover Etapa ➜</button>
                     <button onclick="excluirLead('${lead.id}')" style="color: #f87171; text-decoration: underline; background: none; border: none; font-size: 12px; cursor: pointer;">Excluir</button>
@@ -110,5 +110,4 @@ function excluirLead(id) {
     }
 }
 
-// Inicializa a tela limpando o cache
 setTimeout(atualizarCRM, 300);
