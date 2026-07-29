@@ -1,7 +1,6 @@
 let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
 let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
 
-// Guarda quais colunas o usuário clicou para expandir e "Ver Mais"
 let colunasExpandidas = { contato: false, proposta: false, fechado: false };
 
 function abrirModal() { 
@@ -15,10 +14,12 @@ function fecharModal() {
 
 function limparCampos() {
     document.getElementById('nome').value = '';
+    document.getElementById('telefone').value = '';
     document.getElementById('valor').value = '';
     document.getElementById('notas').value = '';
 }
 
+function configuringMeta() { /* mantida assinatura por compatibilidade */ configurarMeta(); }
 function configurarMeta() {
     const novaMeta = prompt("Quantos contratos/vidas você quer fechar este mês? (Digite apenas o número):", metaContratos);
     if (novaMeta !== null) {
@@ -30,6 +31,7 @@ function configurarMeta() {
 
 function salvarLead() {
     const nome = document.getElementById('nome').value;
+    const telefone = document.getElementById('telefone').value.replace(/\D/g, ''); // Remove letras e parênteses do telefone
     const valorInput = document.getElementById('valor').value;
     const notas = document.getElementById('notas').value;
 
@@ -44,6 +46,7 @@ function salvarLead() {
     const novoLead = {
         id: Date.now().toString(),
         nome,
+        telefone, // Salva o número limpo
         valor: valorNumerico,
         notas,
         etapa: 'contato',
@@ -60,10 +63,9 @@ function atualizarCRM() {
     buscarLeads();
 }
 
-// Função acionada quando o usuário clica no botão "Ver Mais"
 function alternarVerMais(etapa) {
     colunasExpandidas[etapa] = !colunasExpandidas[etapa];
-    buscarLeads(); // Recarrega a tela aplicando a expansão
+    buscarLeads();
 }
 
 function buscarLeads() {
@@ -83,7 +85,6 @@ function buscarLeads() {
     let contadores = { contato: 0, proposta: 0, fechado: 0 };
     let etapasComMatch = { contato: false, proposta: false, fechado: false };
 
-    // Remove botões e avisos antigos da tela antes de redesenhar
     document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());
 
     leads.forEach(lead => {
@@ -94,9 +95,8 @@ function buscarLeads() {
             etapasComMatch[lead.etapa] = true;
             contadores[lead.etapa] += 1;
 
-            // REGRA DA SUA SOLICITAÇÃO: Se a coluna NÃO estiver expandida, esconde a partir do 5º cliente
             if (contadores[lead.etapa] > 4 && !colunasExpandidas[lead.etapa] && termo.length === 0) {
-                return; // Pula a criação do cartão (deixa ele totalmente oculto)
+                return; 
             }
 
             const card = document.createElement('div');
@@ -104,9 +104,20 @@ function buscarLeads() {
             
             const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+            // Monta o link do WhatsApp se o telefone existir
+            let botaoWhatsHTML = '';
+            if (lead.telefone) {
+                // Mensagem personalizada automática
+                const mensagem = encodeURIComponent(`Olá ${lead.nome}, tudo bem? Aqui é o Gleidson do CacauCrm.`);
+                botaoWhatsHTML = `<a href="https://wa.me{lead.telefone}?text=${mensagem}" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>`;
+            }
+
             card.innerHTML = `
-                <h4 style="font-weight: bold;">${lead.nome}</h4>
-                <p class="valor">${valorFormatado}</p>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                    <h4 style="font-weight: bold; margin: 0;">${lead.nome}</h4>
+                    ${botaoWhatsHTML}
+                </div>
+                <p class="valor" style="margin-top: 4px;">${valorFormatado}</p>
                 <p class="notas">${lead.notas || 'Sem anotações'}</p>
                 <span style="font-size: 11px; color: #64748b; display: block; margin-top: 10px; font-style: italic;">📅 Cadastrado em: ${lead.data || 'N/A'}</span>
                 <div class="card-acoes" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">
@@ -119,15 +130,13 @@ function buscarLeads() {
         }
     });
 
-    // Cria o botão dinâmico de "Ver Mais" ou "Recolher" baseado na quantidade
     Object.keys(contadores).forEach(etapa => {
         const containerCards = document.getElementById(`col-${etapa}`);
         
-        // Aplica o travamento de rolagem via código na caixa de cartões
         if (colunasExpandidas[etapa]) {
-            containerCards.style.overflowY = "auto"; // Libera a rolagem se clicou em ver mais
+            containerCards.style.overflowY = "auto";
         } else {
-            containerCards.style.overflowY = "hidden"; // Tranca e congela a rolagem no modo normal
+            containerCards.style.overflowY = "hidden";
         }
 
         if (contadores[etapa] > 4 && termo.length === 0) {
@@ -148,7 +157,6 @@ function buscarLeads() {
         }
     });
 
-    // Atualiza cabeçalhos e títulos
     document.getElementById('titulo-contato').innerText = `📌 Contato Inicial (${contadores.contato})`;
     document.getElementById('titulo-proposta').innerText = `📄 Proposta Enviada (${contadores.proposta})`;
     document.getElementById('titulo-fechado').innerText = `🎉 Contrato Fechado (${contadores.fechado})`;
@@ -160,7 +168,6 @@ function buscarLeads() {
     if (porcentagemMeta > 100) porcentagemMeta = 100;
     document.getElementById('barra-meta-progresso').style.width = `${porcentagemMeta}%`;
 
-    // Filtro de busca inteligente (Esconde colunas vazias)
     Object.keys(colunasFisicas).forEach(etapa => {
         if (termo.length > 0) {
             colunasFisicas[etapa].style.setProperty('display', etapasComMatch[etapa] ? 'block' : 'none', 'important');
