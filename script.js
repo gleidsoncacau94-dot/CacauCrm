@@ -1,4 +1,5 @@
 let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
+let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
 
 function abrirModal() { 
     document.getElementById('modal').style.display = 'flex'; 
@@ -15,25 +16,32 @@ function limparCampos() {
     document.getElementById('notas').value = '';
 }
 
+function configurarMeta() {
+    const novaMeta = prompt("Quantos contratos/vidas você quer fechar este mês? (Digite apenas o número):", metaContratos);
+    if (novaMeta !== null) {
+        metaContratos = parseInt(novaMeta) || 0;
+        localStorage.setItem('crm_meta_contratos', metaContratos);
+        atualizarCRM();
+    }
+}
+
 function salvarLead() {
     const nome = document.getElementById('nome').value;
-    const valor = document.getElementById('valor').value;
+    const valorInput = document.getElementById('valor').value;
     const notas = document.getElementById('notas').value;
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');
 
+    const valorNumerico = parseFloat(valorInput.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+
     const dataAtual = new Date().toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
 
     const novoLead = {
         id: Date.now().toString(),
         nome,
-        valor: valor || '0',
+        valor: valorNumerico,
         notas,
         etapa: 'contato',
         data: dataAtual
@@ -53,19 +61,17 @@ function buscarLeads() {
     const buscaInput = document.getElementById('busca');
     const termo = buscaInput ? buscaInput.value.toLowerCase() : '';
     
-    // Limpa os containers antes de renderizar
     document.getElementById('col-contato').innerHTML = '';
     document.getElementById('col-proposta').innerHTML = '';
     document.getElementById('col-fechado').innerHTML = '';
 
-    // Mapeia os elementos das colunas completas para controle de visibilidade
     const colunasFisicas = {
         contato: document.getElementById('col-contato').parentElement,
         proposta: document.getElementById('col-proposta').parentElement,
         fechado: document.getElementById('col-fechado').parentElement
     };
 
-    // Guarda quais etapas possuem clientes correspondentes à busca
+    let contadores = { contato: 0, proposta: 0, fechado: 0 };
     let etapasComMatch = { contato: false, proposta: false, fechado: false };
 
     leads.forEach(lead => {
@@ -73,14 +79,17 @@ function buscarLeads() {
         const correspondeNotas = lead.notas && lead.notas.toLowerCase().includes(termo);
 
         if (correspondeNome || correspondeNotas) {
-            etapasComMatch[lead.etapa] = true; // Marca que essa etapa tem o cliente buscado
+            etapasComMatch[lead.etapa] = true;
+            contadores[lead.etapa] += 1; // Incrementa a quantidade de leads na etapa
 
             const card = document.createElement('div');
             card.className = "drag-card";
             
+            const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
             card.innerHTML = `
-                <h4 style="font-weight: bold; margin-top: 0; margin-bottom: 6px; font-size: 16px; color: #fff;">${lead.nome}</h4>
-                <p class="valor" style="margin: 0; font-size: 14px; font-weight: 600; color: #4ade80;">R$ ${lead.valor}</p>
+                <h4 style="font-weight: bold;">${lead.nome}</h4>
+                <p class="valor">${valorFormatado}</p>
                 <p class="notas">${lead.notas || 'Sem anotações'}</p>
                 <span style="font-size: 11px; color: #64748b; display: block; margin-top: 10px; font-style: italic;">📅 Cadastrado em: ${lead.data || 'N/A'}</span>
                 <div class="card-acoes" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">
@@ -93,17 +102,25 @@ function buscarLeads() {
         }
     });
 
-    // SISTEMA DE BUSCA ULTRA INTELIGENTE: Esconde as colunas vazias se houver um termo digitado
+    // Atualiza os contadores ao lado dos títulos das colunas
+    document.getElementById('titulo-contato').innerText = `📌 Contato Inicial (${contadores.contato})`;
+    document.getElementById('titulo-proposta').innerText = `📄 Proposta Enviada (${contadores.proposta})`;
+    document.getElementById('titulo-fechado').innerText = `🎉 Contrato Fechado (${contadores.fechado})`;
+
+    // Exibe a quantidade de contratos fechados e a meta numérica no cabeçalho
+    document.getElementById('faturamento-fechado').innerText = contadores.fechado;
+    document.getElementById('valor-meta').innerText = metaContratos;
+    
+    // Calcula a porcentagem da barra de metas com base na QUANTIDADE DE CONTRATOS
+    let porcentagemMeta = metaContratos > 0 ? (contadores.fechado / metaContratos) * 100 : 0;
+    if (porcentagemMeta > 100) porcentagemMeta = 100;
+    document.getElementById('barra-meta-progresso').style.width = `${porcentagemMeta}%`;
+
+    // Filtro inteligente de busca (Esconde colunas vazias)
     Object.keys(colunasFisicas).forEach(etapa => {
         if (termo.length > 0) {
-            // Se tem texto digitado na busca, só mostra a coluna que tem o cliente encontrado
-            if (etapasComMatch[etapa]) {
-                colunasFisicas[etapa].style.display = 'block';
-            } else {
-                colunasFisicas[etapa].style.display = 'none';
-            }
+            colunasFisicas[etapa].style.display = etapasComMatch[etapa] ? 'block' : 'none';
         } else {
-            // Se a busca estiver vazia, exibe todas as colunas normalmente
             colunasFisicas[etapa].style.display = 'block';
         }
     });
