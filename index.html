@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CacauCrm</title>
-    <!-- Estilização Premium Embutida Definitiva -->
+    <!-- Estilização Premium Embutida Definitiva para Celular -->
     <style>
         body {
             background-color: #0f172a !important;
@@ -56,6 +56,7 @@
         main { padding: 24px; display: grid; grid-template-columns: 1fr; gap: 24px; }
         @media (min-width: 768px) { main { grid-template-columns: repeat(3, 1fr); } }
         
+        /* TRAVA ABSOLUTA DA COLUNA */
         .coluna-kanban {
             background-color: #1e293b !important;
             border: 1px solid #334155 !important;
@@ -69,11 +70,13 @@
             overflow: hidden !important;
         }
         
+        /* TRAVA ABSOLUTA DO CONTAINER DE CARTÕES */
         .container-cards {
             display: flex !important;
             flex-direction: column !important;
             gap: 12px !important;
             max-height: 400px !important;
+            overflow-y: hidden !important; /* Controlado dinamicamente pelo script */
             padding-right: 4px !important;
         }
         .container-cards::-webkit-scrollbar { width: 0px; background: transparent; }
@@ -84,12 +87,12 @@
         .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }
         .drag-card .notas { background-color: #0f172a; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0; }
         
-        /* Botão do WhatsApp Integrado */
+        /* Estilo do botão do WhatsApp */
         .btn-whatsapp {
             background-color: #128c7e;
             color: white;
             border: none;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
             font-size: 11px;
             font-weight: bold;
@@ -131,28 +134,33 @@
 
     <!-- Quadro Kanban Dinâmico -->
     <main>
+        <!-- Contato -->
         <div class="coluna-kanban">
             <h2 style="color: #fbbf24; margin: 0 0 16px 0;" id="titulo-contato">📌 Contato Inicial (0)</h2>
             <div id="col-contato" class="container-cards"></div>
         </div>
+
+        <!-- Proposta -->
         <div class="coluna-kanban">
             <h2 style="color: #818cf8; margin: 0 0 16px 0;" id="titulo-proposta">📄 Proposta Enviada (0)</h2>
             <div id="col-proposta" class="container-cards"></div>
         </div>
+
+        <!-- Fechado -->
         <div class="coluna-kanban">
             <h2 style="color: #34d399; margin: 0 0 16px 0;" id="titulo-fechado">🎉 Contrato Fechado (0)</h2>
             <div id="col-fechado" class="container-cards"></div>
         </div>
     </main>
 
-    <!-- Formulário Modal Flutuante com campo de Celular -->
+    <!-- Formulário Modal Flutuante -->
     <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; padding: 16px;" class="modal-overlay">
         <div class="modal-content">
             <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 16px; font-size: 20px; font-weight: bold;">Cadastrar Novo Lead</h3>
             <input type="text" id="nome" placeholder="Nome do Cliente">
             <input type="tel" id="telefone" placeholder="WhatsApp (Ex: 85999998888)">
             <input type="text" id="valor" placeholder="Valor Estimado (R$)">
-            <textarea id="notes" placeholder="Anotações" style="height: 80px; resize: none; font-family: sans-serif;"></textarea>
+            <textarea id="notas" placeholder="Anotações" style="height: 80px; resize: none; font-family: sans-serif;"></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">
                 <button onclick="fecharModal()" style="background-color: #475569; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;">Cancelar</button>
                 <button onclick="salvarLead()" style="background-color: #4f46e5; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold;">Salvar</button>
@@ -160,34 +168,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA CORRIGIDA DA VERSÃO 15 -->
-    <script>
-        let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
-        let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
-        let colunasExpandidas = { contato: false, proposta: false, fechado: false };
-
-        function abrirModal() { document.getElementById('modal').style.display = 'flex'; }
-        function fecharModal() { document.getElementById('modal').style.display = 'none'; limparCampos(); }
-        
-        function limparCampos() {
-            document.getElementById('nome').value = '';
-            document.getElementById('telefone').value = '';
-            document.getElementById('valor').value = '';
-            document.getElementById('notes').value = '';
-        }
-
-        function configurarMeta() {
-            const novaMeta = prompt("Quantos contratos/vidas você quer fechar este mês? (Digite apenas o número):", metaContratos);
-            if (novaMeta !== null) {
-                metaContratos = parseInt(novaMeta) || 0;
-                localStorage.setItem('crm_meta_contratos', metaContratos);
-                atualizarCRM();
-            }
-        }
-
-        function salvarLead() {
-            const nome = document.getElementById('nome').value;
-            const telefone = document.getElementById('telefone').value.replace(/\D/g, ''); 
-            const valorInput = document.getElementById('valor').value;
-            const notas = document.getElementById('notes').value;
-
+    <!-- Puxa a nova versão do script (v=15) -->
+    <script src="./script.js?v=15"></script>
+</body>
+</html>
