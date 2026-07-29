@@ -21,8 +21,6 @@ function limparCampos() {
     document.getElementById('notas').value = '';
 }
 
-function configuringMeta() { if (typeof configuringMeta !== 'undefined') configurarMeta(); }
-
 function configurarMeta() {
     const novaMeta = prompt("Quantos contratos/vidas você quer fechar este mês? (Digite apenas o número):", metaContratos);
     if (novaMeta !== null) {
@@ -48,7 +46,6 @@ function salvarLead() {
         day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'  
     });  
 
-    // Cria o histórico inicial com a primeira nota (se houver)
     let historicoInicial = [];
     if (notasTexto !== "") {
         historicoInicial.push({
@@ -66,7 +63,9 @@ function salvarLead() {
         valor: valorNumerico,  
         historico: historicoInicial,  
         etapa: 'contato',  
-        data: dataAtual  
+        data: dataAtual,
+        timestampCriacao: Date.now(), // Armazena timestamp para cálculo de tempo médio
+        timestampFechamento: null
     };  
 
     leads.push(novoLead);  
@@ -74,7 +73,6 @@ function salvarLead() {
     fecharModal();
 }
 
-// Função para adicionar uma nova nota na linha do tempo do lead
 function adicionarNota(id) {
     const novaNotaTexto = prompt("Digite a nova anotação / histórico:");
     if (!novaNotaTexto || novaNotaTexto.trim() === "") return;
@@ -85,10 +83,7 @@ function adicionarNota(id) {
 
     leads = leads.map(lead => {
         if (lead.id === id) {
-            // Garante compatibilidade caso o lead seja antigo e não tenha o array historico
             if (!lead.historico) lead.historico = [];
-            
-            // Adiciona a nova nota no topo do histórico
             lead.historico.unshift({
                 data: dataAtual,
                 texto: novaNotaTexto.trim()
@@ -139,17 +134,33 @@ function buscarLeads() {
     let contadores = { contato: 0, proposta: 0, fechado: 0 };  
     let etapasComMatch = { contato: false, proposta: false, fechado: false };  
 
+    // Variáveis para cálculo do Dashboard
+    let totalLeadsHistorico = leads.length;
+    let totalFechadosContagem = 0;
+    let somaValoresFechados = 0;
+    let somaDiasFechamento = 0;
+
     document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());  
 
     leads.forEach(lead => {  
+        // Coleta métricas globais para o Dashboard
+        if (lead.etapa === 'fechado') {
+            totalFechadosContagem++;
+            somaValoresFechados += (lead.valor || 0);
+
+            // Calcula tempo de fechamento se tiver o timestamp de criação e fechamento
+            let tCriacao = lead.timestampCriacao || parseInt(lead.id);
+            let tFechamento = lead.timestampFechamento || Date.now();
+            let diasAteFechar = (tFechamento - tCriacao) / (1000 * 60 * 60 * 24);
+            somaDiasFechamento += Math.max(0, diasAteFechar);
+        }
+
         const correspondeNome = lead.nome.toLowerCase().includes(termo);  
         
-        // Verifica se o termo está em alguma das notas do histórico
         let correspondeNotas = false;
         if (lead.historico && Array.isArray(lead.historico)) {
             correspondeNotas = lead.historico.some(n => n.texto.toLowerCase().includes(termo));
         } else if (lead.notas) {
-            // Compatibilidade com cadastros antigos
             correspondeNotas = lead.notas.toLowerCase().includes(termo);
         }
 
@@ -230,11 +241,9 @@ function buscarLeads() {
                 badgeDataRetorno = `<div class="data-retorno ${classeData}">${icone} Retorno: ${dataFormatada}</div>`;
             }
 
-            // Monta o HTML do Histórico de Anotações
             let htmlHistorico = '';
             let listaNotas = lead.historico || [];
             
-            // Compatibilidade com leads antigos que usavam apenas .notas
             if (listaNotas.length === 0 && lead.notas) {
                 listaNotas = [{ data: lead.data || 'N/A', texto: lead.notas }];
             }
@@ -284,6 +293,15 @@ function buscarLeads() {
             document.getElementById(`col-${lead.etapa}`).appendChild(card);  
         }  
     });  
+
+    // Atualiza os cálculos do Dashboard de Indicadores
+    let taxaConversao = totalLeadsHistorico > 0 ? (totalFechadosContagem / totalLeadsHistorico) * 100 : 0;
+    let ticketMedio = totalFechadosContagem > 0 ? somaValoresFechados / totalFechadosContagem : 0;
+    let tempoMedio = totalFechadosContagem > 0 ? somaDiasFechamento / totalFechadosContagem : 0;
+
+    document.getElementById('dash-conversao').innerText = `${taxaConversao.toFixed(1)}%`;
+    document.getElementById('dash-ticket').innerText = ticketMedio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    document.getElementById('dash-tempo').innerText = `${Math.round(tempoMedio)} dias`;
 
     Object.keys(contadores).forEach(etapa => {  
         const containerCards = document.getElementById(`col-${etapa}`);  
@@ -335,9 +353,15 @@ function buscarLeads() {
 function mudarEtapa(id) {
     leads = leads.map(lead => {
         if (lead.id === id) {
-            if (lead.etapa === 'contato') lead.etapa = 'proposta';
-            else if (lead.etapa === 'proposta') lead.etapa = 'fechado';
-            else lead.etapa = 'contato';
+            if (lead.etapa === 'contato') {
+                lead.etapa = 'proposta';
+            } else if (lead.etapa === 'proposta') {
+                lead.etapa = 'fechado';
+                lead.timestampFechamento = Date.now(); // Marca o momento exato em que virou contrato
+            } else {
+                lead.etapa = 'contato';
+                lead.timestampFechamento = null;
+            }
         }
         return lead;
     });
@@ -349,7 +373,18 @@ function permitirSoltar(e) { e.preventDefault(); }
 function soltar(e, novaEtapa) {
     e.preventDefault();
     const id = e.dataTransfer.getData('text/plain');
-    leads = leads.map(lead => lead.id === id ? { ...lead, etapa: novaEtapa } : lead);
+    leads = leads.map(lead => {
+        if (lead.id === id) {
+            let atualizado = { ...lead, etapa: novaEtapa };
+            if (novaEtapa === 'fechado' && lead.etapa !== 'fechado') {
+                atualizado.timestampFechamento = Date.now();
+            } else if (novaEtapa !== 'fechado') {
+                atualizado.timestampFechamento = null;
+            }
+            return atualizado;
+        }
+        return lead;
+    });
     atualizarCRM();
 }
 
