@@ -49,6 +49,32 @@
         .barra-meta-progresso { background: linear-gradient(90deg, #4f46e5, #34d399); height: 100%; width: 0%; transition: width 0.4s ease; }  
         .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; }  
         
+        /* Estilos do Dashboard de Indicadores */
+        .dashboard-container {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .dashboard-container { grid-template-columns: repeat(3, 1fr); }
+        }
+        .dash-card {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .dash-titulo { font-size: 12px; color: #94a3b8; font-weight: 600; }
+        .dash-valor { font-size: 20px; font-weight: bold; color: #f8fafc; }
+
         #busca, #filtro-tag-topo { padding: 10px 15px; background-color: #334155; border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }  
         #busca { width: 100%; max-width: 200px; }
         #filtro-tag-topo { width: 100%; max-width: 180px; }
@@ -101,7 +127,6 @@
         .drag-card h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }  
         .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }  
         
-        /* Estilos do Histórico */
         .historico-container { background-color: #0f172a; padding: 8px; border-radius: 6px; margin: 8px 0 0 0; max-height: 90px; overflow-y: auto; }
         .nota-item { font-size: 11px; color: #94a3b8; border-bottom: 1px solid #1e293b; padding-bottom: 4px; margin-bottom: 4px; }
         .nota-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -173,6 +198,24 @@
     </div>  
 </header>  
 
+<!-- Dashboard de Indicadores Comerciais -->
+<section style="margin-top: 24px;">
+    <div class="dashboard-container">
+        <div class="dash-card">
+            <span class="dash-titulo">🎯 Taxa de Conversão</span>
+            <span class="dash-valor" id="dash-conversao" style="color: #38bdf8;">0%</span>
+        </div>
+        <div class="dash-card">
+            <span class="dash-titulo">💰 Ticket Médio Fechado</span>
+            <span class="dash-valor" id="dash-ticket" style="color: #4ade80;">R$ 0,00</span>
+        </div>
+        <div class="dash-card">
+            <span class="dash-titulo">⏳ Tempo Médio de Fechamento</span>
+            <span class="dash-valor" id="dash-tempo" style="color: #fbbf24;">0 dias</span>
+        </div>
+    </div>
+</section>
+
 <!-- Quadro Kanban Dinâmico -->  
 <main>  
     <div class="coluna-kanban">  
@@ -234,7 +277,7 @@
     }  
 </script>  
 
-<script src="./script.js?v=25"></script>
+<script src="./script.js?v=26"></script>
 
 </body>  
 </html>
