@@ -80,7 +80,7 @@ function buscarLeads() {
 
         if (correspondeNome || correspondeNotas) {
             etapasComMatch[lead.etapa] = true;
-            contadores[lead.etapa] += 1; // Incrementa a quantidade de leads na etapa
+            contadores[lead.etapa] += 1;
 
             const card = document.createElement('div');
             card.className = "drag-card";
@@ -102,21 +102,33 @@ function buscarLeads() {
         }
     });
 
-    // Atualiza os contadores ao lado dos títulos das colunas
+    // Remove avisos antigos de rolagem se já existirem
+    document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());
+
+    // Adiciona o indicador visual dinâmico de "Ver mais na rolagem" se tiver mais de 3 leads
+    Object.keys(contadores).forEach(etapa => {
+        if (contadores[etapa] > 3) {
+            const container = document.getElementById(`col-${etapa}`);
+            const aviso = document.createElement('div');
+            aviso.className = "aviso-oculto";
+            aviso.innerText = `➕ Mais ${contadores[etapa] - 3} clientes ocultos • Role para baixo`;
+            container.parentElement.appendChild(aviso);
+        }
+    });
+
+    // Atualiza cabeçalhos e títulos
     document.getElementById('titulo-contato').innerText = `📌 Contato Inicial (${contadores.contato})`;
     document.getElementById('titulo-proposta').innerText = `📄 Proposta Enviada (${contadores.proposta})`;
     document.getElementById('titulo-fechado').innerText = `🎉 Contrato Fechado (${contadores.fechado})`;
 
-    // Exibe a quantidade de contratos fechados e a meta numérica no cabeçalho
     document.getElementById('faturamento-fechado').innerText = contadores.fechado;
     document.getElementById('valor-meta').innerText = metaContratos;
     
-    // Calcula a porcentagem da barra de metas com base na QUANTIDADE DE CONTRATOS
     let porcentagemMeta = metaContratos > 0 ? (contadores.fechado / metaContratos) * 100 : 0;
     if (porcentagemMeta > 100) porcentagemMeta = 100;
     document.getElementById('barra-meta-progresso').style.width = `${porcentagemMeta}%`;
 
-    // Filtro inteligente de busca (Esconde colunas vazias)
+    // Filtro de busca inteligente (Esconde colunas vazias)
     Object.keys(colunasFisicas).forEach(etapa => {
         if (termo.length > 0) {
             colunasFisicas[etapa].style.display = etapasComMatch[etapa] ? 'block' : 'none';
