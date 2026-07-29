@@ -4,7 +4,6 @@
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>CacauCrm</title>  
-    <!-- Estilização Premium Embutida Definitiva para Celular -->  
     <style>  
         body {  
             background-color: #0f172a !important;  
@@ -55,7 +54,7 @@
         .btn-principal:active { transform: scale(0.95); }  
         main { padding: 24px; display: grid; grid-template-columns: 1fr; gap: 24px; }  
         @media (min-width: 768px) { main { grid-template-columns: repeat(3, 1fr); } }  
-        /* TRAVA ABSOLUTA DA COLUNA */  
+        
         .coluna-kanban {  
             background-color: #1e293b !important;  
             border: 1px solid #334155 !important;  
@@ -69,7 +68,6 @@
             overflow: hidden !important;  
         }  
           
-        /* TRAVA ABSOLUTA DO CONTAINER DE CARTÕES CORRIGIDA */  
         .container-cards {  
             display: flex !important;  
             flex-direction: column !important;  
@@ -87,12 +85,15 @@
         }  
           
         .aviso-oculto { text-align: center; font-size: 12px; color: #a5b4fc; background-color: #0f172a; padding: 10px; border-radius: 8px; margin-top: 12px; border: 1px dashed #4338ca; font-weight: 500; }  
-        .drag-card { background-color: #334155 !important; border: 1px solid #475569 !important; border-radius: 8px !important; padding: 16px !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important; }  
+        
+        /* ADICIONADO CURSOR DE ARRASTAR */
+        .drag-card { background-color: #334155 !important; border: 1px solid #475569 !important; border-radius: 8px !important; padding: 16px !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important; cursor: grab; }  
+        .drag-card:active { cursor: grabbing; }
+
         .drag-card h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }  
         .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }  
         .drag-card .notas { background-color: #0f172a; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0; }  
           
-        /* Estilo do botão do WhatsApp */  
         .btn-whatsapp {  
             background-color: #128c7e;  
             color: white;  
@@ -115,7 +116,6 @@
     </style>
 </head>  
 <body>  
-<!-- Cabeçalho Principal -->  
 <header>  
     <div class="topo-logo-meta">  
         <h1>CacauCrm</h1>  
@@ -136,28 +136,27 @@
     </div>  
 </header>  
 
-<!-- Quadro Kanban Dinâmico -->  
+<!-- Quadro Kanban com Eventos de Arrastar e Soltar (ondragover / ondrop) -->  
 <main>  
     <!-- Contato -->  
     <div class="coluna-kanban">  
         <h2 style="color: #fbbf24; margin: 0 0 16px 0;" id="titulo-contato">📌 Contato Inicial (0)</h2>  
-        <div id="col-contato" class="container-cards"></div>  
+        <div id="col-contato" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'contato')"></div>  
     </div>  
 
     <!-- Proposta -->  
     <div class="coluna-kanban">  
         <h2 style="color: #818cf8; margin: 0 0 16px 0;" id="titulo-proposta">📄 Proposta Enviada (0)</h2>  
-        <div id="col-proposta" class="container-cards"></div>  
+        <div id="col-proposta" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'proposta')"></div>  
     </div>  
 
     <!-- Fechado -->  
     <div class="coluna-kanban">  
         <h2 style="color: #34d399; margin: 0 0 16px 0;" id="titulo-fechado">🎉 Contrato Fechado (0)</h2>  
-        <div id="col-fechado" class="container-cards"></div>  
+        <div id="col-fechado" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'fechado')"></div>  
     </div>  
 </main>  
 
-<!-- Formulário Modal Flutuante -->  
 <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; padding: 16px;" class="modal-overlay">  
     <div class="modal-content">  
         <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 16px; font-size: 20px; font-weight: bold;">Cadastrar Novo Lead</h3>  
@@ -172,12 +171,10 @@
     </div>  
 </div>  
 
-<!-- FUNÇÃO DE DISPARO INDEPEDENTE DE CACHE -->  
 <script>  
     function dispararWhatsapp(numero, nome) {  
         let numeroLimpo = numero.replace(/\D/g, ''); 
         
-        // Adiciona DDI 55 do Brasil caso o usuário não tenha colocado e o número tenha tamanho normal
         if (!numeroLimpo.startsWith('55') && numeroLimpo.length <= 11) {
             numeroLimpo = '55' + numeroLimpo;
         }
@@ -185,15 +182,12 @@
         var msgText = "Olá " + nome + ", tudo bem? Aqui é o Gleidson.";  
         var msgFinal = encodeURIComponent(msgText);  
         
-        // URL Corrigida com a barra e com o número formatado corretamente
         var urlCompleta = "https://wa.me/" + numeroLimpo + "?text=" + msgFinal;  
-        
         window.open(urlCompleta, '_blank');  
     }  
 </script>  
 
-<!-- Puxa a nova versão do script (v=21) -->  
-<script src="./script.js?v=21"></script>
+<script src="./script.js?v=22"></script>
 
 </body>  
 </html>
