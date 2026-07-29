@@ -2,6 +2,7 @@ let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
 let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
 
 let colunasExpandidas = { contato: false, proposta: false, fechado: false };
+let gavetaAberta = false;
 
 function abrirModal() {
     document.getElementById('modal').style.display = 'flex';
@@ -40,7 +41,7 @@ function salvarLead() {
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');  
 
-    const valorNumerico = parseFloat(valorInput.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;  
+    const valorNumerico = parseFloat(valorInput.replace(/[^\d,.-]/g, '').replace(',', '.')) ||  0;  
 
     const dataAtual = new Date().toLocaleDateString('pt-BR', {  
         day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'  
@@ -65,7 +66,7 @@ function salvarLead() {
         etapa: 'contato',  
         data: dataAtual,
         timestampCriacao: Date.now(),
-        timestampMudancaEtapa: Date.now(), // Marca quando entrou na etapa atual para o SLA
+        timestampMudancaEtapa: Date.now(),
         timestampFechamento: null
     };  
 
@@ -100,10 +101,15 @@ function atualizarCRM() {
     const agora = Date.now();
     const limiteDiasEmMs = 5 * 24 * 60 * 60 * 1000;
 
-    leads = leads.filter(lead => {
-        if (lead.etapa === 'fechado') return true; 
-        const idadeDoLead = agora - parseInt(lead.id);
-        return idadeDoLead <= limiteDiasEmMs;
+    // Em vez de apagar, movemos automaticamente para a etapa 'sem-resposta' se passar de 5 dias e não estiver fechado
+    leads = leads.map(lead => {
+        if (lead.etapa !== 'fechado' && lead.etapa !== 'sem-resposta') {
+            const baseTempo = lead.timestampMudancaEtapa || lead.timestampCriacao || parseInt(lead.id);
+            if ((agora - baseTempo) > limiteDiasEmMs) {
+                return { ...lead, etapa: 'sem-resposta' };
+            }
+        }
+        return lead;
     });
 
     localStorage.setItem('crm_leads', JSON.stringify(leads));
@@ -112,6 +118,13 @@ function atualizarCRM() {
 
 function alternarVerMais(etapa) {
     colunasExpandidas[etapa] = !colunasExpandidas[etapa];
+    buscarLeads();
+}
+
+function alternarGavetaSemResposta() {
+    gavetaAberta = !gavetaAberta;
+    const secao = document.getElementById('secao-gaveta');
+    secao.style.display = gavetaAberta ? 'block' : 'none';
     buscarLeads();
 }
 
@@ -125,6 +138,7 @@ function buscarLeads() {
     document.getElementById('col-contato').innerHTML = '';  
     document.getElementById('col-proposta').innerHTML = '';  
     document.getElementById('col-fechado').innerHTML = '';  
+    document.getElementById('col-sem-resposta').innerHTML = '';
 
     const colunasFisicas = {  
         contato: document.getElementById('col-contato').parentElement,  
@@ -132,7 +146,7 @@ function buscarLeads() {
         fechado: document.getElementById('col-fechado').parentElement  
     };  
 
-    let contadores = { contato: 0, proposta: 0, fechado: 0 };  
+    let contadores = { contato: 0, proposta: 0, fechado: 0, 'sem-resposta': 0 };  
     let etapasComMatch = { contato: false, proposta: false, fechado: false };  
 
     let totalLeadsHistorico = leads.length;
@@ -163,12 +177,16 @@ function buscarLeads() {
         const correspondeTag = termoTag === '' || lead.tag === termoTag;
 
         if ((correspondeNome || correspondeNotas) && correspondeTag) {  
-            etapasComMatch[lead.etapa] = true;  
+            if (lead.etapa !== 'sem-resposta') {
+                etapasComMatch[lead.etapa] = true;  
+            }
             contadores[lead.etapa] += 1;  
 
-            if (contadores[lead.etapa] > 4 && !colunasExpandidas[lead.etapa] && termo.length === 0 && termoTag === '') {  
-                return;   
-            }  
+            if (lead.etapa !== 'sem-resposta') {
+                if (contadores[lead.etapa] > 4 && !colunasExpandidas[lead.etapa] && termo.length === 0 && termoTag === '') {  
+                    return;   
+                }  
+            }
 
             const card = document.createElement('div');  
             card.className = "drag-card";  
@@ -180,12 +198,11 @@ function buscarLeads() {
             let diasNaEtapa = 0;
             let estaParado = false;
 
-            if (lead.etapa !== 'fechado') {
+            if (lead.etapa !== 'fechado' && lead.etapa !== 'sem-resposta') {
                 let baseTempo = lead.timestampMudancaEtapa || lead.timestampCriacao || parseInt(lead.id);
-                dianNaEtapaCalculo = (Date.now() - baseTempo) / (1000 * 60 * 60 * 24);
+                let dianNaEtapaCalculo = (Date.now() - baseTempo) / (1000 * 60 * 60 * 24);
                 diasNaEtapa = Math.floor(dianNaEtapaCalculo);
 
-                // Regra de SLA: Mais de 2 dias na mesma coluna aciona alerta de parado
                 if (diasNaEtapa >= 2) {
                     estaParado = true;
                     card.classList.add('alerta-sla');
@@ -193,6 +210,8 @@ function buscarLeads() {
                 } else {
                     corSla = "#22c55e";
                 }
+            } else if (lead.etapa === 'sem-resposta') {
+                corSla = "#f87171";
             } else {
                 corSla = "#34d399";
             }
@@ -207,12 +226,14 @@ function buscarLeads() {
             }  
 
             let infoTempo = '';
-            if (lead.etapa !== 'fechado') {
+            if (lead.etapa !== 'fechado' && lead.etapa !== 'sem-resposta') {
                 if (estaParado) {
                     infoTempo = `<span style="font-size: 11px; color: #ef4444; font-weight: bold; margin-left: auto;">⚠️ Parado há ${diasNaEtapa} dias</span>`;
                 } else {
                     infoTempo = `<span style="font-size: 11px; color: #22c55e; font-weight: bold; margin-left: auto;">${diasNaEtapa > 0 ? diasNaEtapa + ' dias na etapa' : 'Entrou hoje'}</span>`;
                 }
+            } else if (lead.etapa === 'sem-resposta') {
+                infoTempo = `<span style="font-size: 11px; color: #f87171; font-weight: bold; margin-left: auto;">📭 Sem Resposta (+5 dias)</span>`;
             }
 
             let badgeTag = '';
@@ -270,6 +291,10 @@ function buscarLeads() {
                 htmlHistorico = `<p class="historico-container" style="color: #64748b; font-size: 11px; text-align: center;">Sem anotações</p>`;
             }
 
+            let botaoMoverEspecial = lead.etapa === 'sem-resposta' 
+                ? `<button onclick="restaurarDaGaveta('${lead.id}')" style="color: #34d399; text-decoration: underline; font-weight: bold; background: none; border: none; font-size: 12px; cursor: pointer;">📂 Voltar p/ Contato</button>`
+                : `<button onclick="mudarEtapa('${lead.id}')" style="color: #818cf8; text-decoration: underline; font-weight: 500; background: none; border: none; font-size: 12px; cursor: pointer;">Mover Etapa ➜</button>`;
+
             card.innerHTML = `  
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">  
                     <div>
@@ -292,12 +317,16 @@ function buscarLeads() {
                 </div>
 
                 <div class="card-acoes" style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">  
-                    <button onclick="mudarEtapa('${lead.id}')" style="color: #818cf8; text-decoration: underline; font-weight: 500; background: none; border: none; font-size: 12px; cursor: pointer;">Mover Etapa ➜</button>  
+                    ${botaoMoverEspecial}  
                     <button onclick="excluirLead('${lead.id}')" style="color: #f87171; text-decoration: underline; background: none; border: none; font-size: 12px; cursor: pointer;">Excluir</button>  
                 </div>  
             `;  
 
-            document.getElementById(`col-${lead.etapa}`).appendChild(card);  
+            if (lead.etapa === 'sem-resposta') {
+                document.getElementById('col-sem-resposta').appendChild(card);
+            } else {
+                document.getElementById(`col-${lead.etapa}`).appendChild(card);  
+            }
         }  
     });  
 
@@ -306,8 +335,9 @@ function buscarLeads() {
 
     document.getElementById('dash-conversao').innerText = `${taxaConversao.toFixed(1)}%`;
     document.getElementById('dash-tempo').innerText = `${Math.round(tempoMedio)} dias`;
+    document.getElementById('btn-gaveta-toggle').innerText = `📭 Sem Resposta (${contadores['sem-resposta']})`;
 
-    Object.keys(contadores).forEach(etapa => {  
+    Object.keys(colunasFisicas).forEach(etapa => {  
         const containerCards = document.getElementById(`col-${etapa}`);  
           
         if (colunasExpandidas[etapa]) {  
@@ -352,6 +382,20 @@ function buscarLeads() {
             colunasFisicas[etapa].style.setProperty('display', 'block', 'important');  
         }  
     });
+}
+
+function restaurarDaGaveta(id) {
+    leads = leads.map(lead => {
+        if (lead.id === id) {
+            return {
+                ...lead,
+                etapa: 'contato',
+                timestampMudancaEtapa: Date.now()
+            };
+        }
+        return lead;
+    });
+    atualizarCRM();
 }
 
 function mudarEtapa(id) {
