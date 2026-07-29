@@ -104,12 +104,12 @@ function buscarLeads() {
             
             const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // CORREÇÃO CRÍTICA: Link oficial com template strings (crases) para renderizar a variável corretamente
+            // MUDANÇA CRÍTICA AQUI: Concatenação tradicional pura com "+" para o navegador não ler como texto literal
             let botaoWhatsHTML = '';
             if (lead.telefone) {
-                const textoMensagem = `Olá ${lead.nome}, tudo bem? Aqui é o Gleidson.`;
+                const textoMensagem = "Olá " + lead.nome + ", tudo bem? Aqui é o Gleidson.";
                 const mensagem = encodeURIComponent(textoMensagem);
-                botaoWhatsHTML = `<a href="https://wa.me{lead.telefone}?text=${mensagem}" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>`;
+                botaoWhatsHTML = '<a href="https://wa.me' + lead.telefone + '?text=' + mensagem + '" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>';
             }
 
             card.innerHTML = `
