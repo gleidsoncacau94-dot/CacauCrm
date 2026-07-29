@@ -19,7 +19,7 @@ function limparCampos() {
     document.getElementById('notas').value = '';
 }
 
-function configuringMeta() { /* mantida assinatura por compatibilidade */ configurarMeta(); }
+function configuringMeta() { if (typeof configuringMeta !== 'undefined') configurarMeta(); }
 function configurarMeta() {
     const novaMeta = prompt("Quantos contratos/vidas você quer fechar este mês? (Digite apenas o número):", metaContratos);
     if (novaMeta !== null) {
@@ -31,7 +31,7 @@ function configurarMeta() {
 
 function salvarLead() {
     const nome = document.getElementById('nome').value;
-    const telefone = document.getElementById('telefone').value.replace(/\D/g, ''); // Remove letras e parênteses do telefone
+    const telefone = document.getElementById('telefone').value.replace(/\D/g, ''); 
     const valorInput = document.getElementById('valor').value;
     const notas = document.getElementById('notas').value;
 
@@ -46,7 +46,7 @@ function salvarLead() {
     const novoLead = {
         id: Date.now().toString(),
         nome,
-        telefone, // Salva o número limpo
+        telefone, 
         valor: valorNumerico,
         notas,
         etapa: 'contato',
@@ -104,12 +104,12 @@ function buscarLeads() {
             
             const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // Monta o link do WhatsApp se o telefone existir
+            // Monta o link corrigido e infalível do WhatsApp
             let botaoWhatsHTML = '';
             if (lead.telefone) {
-                // Mensagem personalizada automática
-                const mensagem = encodeURIComponent(`Olá ${lead.nome}, tudo bem? Aqui é o Gleidson do CacauCrm.`);
-                botaoWhatsHTML = `<a href="https://wa.me{lead.telefone}?text=${mensagem}" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>`;
+                const textoMensagem = "Olá " + lead.nome + ", tudo bem? Aqui é o Gleidson.";
+                const mensagem = encodeURIComponent(textoMensagem);
+                botaoWhatsHTML = '<a href="https://whatsapp.com' + lead.telefone + '&text=' + mensagem + '" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>';
             }
 
             card.innerHTML = `
