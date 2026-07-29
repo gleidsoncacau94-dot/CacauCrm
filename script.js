@@ -145,7 +145,6 @@ function buscarLeads() {
                 botaoWhatsHTML = `<button onclick="dispararWhatsapp('${lead.telefone}', '${lead.nome}')" class="btn-whatsapp">💬 WhatsApp</button>`;  
             }  
 
-            // Adicionei também a informação visual de dias se não estiver fechado
             let infoTempo = '';
             if (lead.etapa !== 'fechado' && diasDecorridos > 0) {
                 let diasArredondados = Math.floor(diasDecorridos);
@@ -246,6 +245,65 @@ function excluirLead(id) {
         leads = leads.filter(lead => lead.id !== id);
         atualizarCRM();
     }
+}
+
+// ==========================================
+// SISTEMA DE BACKUP (EXPORTAR E IMPORTAR)
+// ==========================================
+
+function exportarBackup() {
+    const backupDados = {
+        leads: leads,
+        metaContratos: metaContratos,
+        dataBackup: new Date().toLocaleString('pt-BR')
+    };
+
+    const blob = new Blob([JSON.stringify(backupDados, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CacauCRM_Backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`;
+    a.click();
+    
+    URL.revokeObjectURL(url);
+}
+
+function importarBackup() {
+    document.getElementById('input-importar').click();
+}
+
+function processarImportacao(event) {
+    const arquivo = event.target.files[0];
+    if (!arquivo) return;
+
+    const leitor = new FileReader();
+    leitor.onload = function(e) {
+        try {
+            const backup = JSON.parse(e.target.result);
+            
+            if (backup.leads !== undefined) {
+                if(confirm("Atenção: Isso vai substituir os clientes atuais da tela pelos do backup. Deseja continuar?")) {
+                    leads = backup.leads;
+                    metaContratos = backup.metaContratos || 0;
+                    
+                    localStorage.setItem('crm_leads', JSON.stringify(leads));
+                    localStorage.setItem('crm_meta_contratos', metaContratos);
+                    
+                    atualizarCRM();
+                    alert("✅ Backup restaurado com sucesso!");
+                }
+            } else {
+                alert("❌ Arquivo de backup inválido. Tente outro arquivo.");
+            }
+        } catch (erro) {
+            alert("❌ Ocorreu um erro ao ler o arquivo.");
+        }
+        
+        event.target.value = '';
+    };
+    
+    leitor.readAsText(arquivo);
 }
 
 // Inicia o CRM
