@@ -3,373 +3,215 @@
 <head>  
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>CacauCrm - Enterprise Edition</title>  
+    <title>CacauCrm</title>  
     <style>  
-        :root {
-            --bg-base: #060913;
-            --bg-surface: #0b1120;
-            --bg-card: #111827;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(99, 102, 241, 0.3);
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-green: #10b981;
-            --accent-yellow: #f59e0b;
-            --accent-red: #ef4444;
-        }
-
         body {  
-            background-color: var(--bg-base) !important;  
-            color: var(--text-main) !important;  
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;  
+            background-color: #090d16 !important;  
+            color: #f1f5f9 !important;  
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;  
             margin: 0;  
             padding: 0;  
             -webkit-font-smoothing: antialiased;
-            background-image: 
-                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
-            background-attachment: fixed;
         }  
-
         header {  
-            background: rgba(11, 17, 32, 0.85);  
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-color);  
-            padding: 20px 32px;  
+            background-color: #111827;  
+            border-bottom: 1px solid #1f2937;  
+            padding: 20px 24px;  
             display: flex;  
             flex-direction: column;  
-            gap: 20px;  
-            position: sticky;
-            top: 0;
-            z-index: 40;
+            gap: 16px;  
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
         }  
-
         .topo-logo-meta {  
             display: flex;  
             flex-direction: column;  
             gap: 16px;  
             width: 100%;  
         }  
-        @media (min-width: 900px) {  
+        @media (min-width: 768px) {  
             .topo-logo-meta { flex-direction: row; justify-content: space-between; align-items: center; }  
         }  
+        header h1 { font-size: 24px; font-weight: 800; color: #818cf8; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }  
+        header h1::before { content: '🍫'; font-size: 20px; }
 
-        header h1 { 
-            font-size: 24px; 
-            font-weight: 800; 
-            color: #fff; 
-            margin: 0; 
-            letter-spacing: -0.5px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-        }  
-        header h1 span {
-            background: linear-gradient(135deg, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        header h1::before { 
-            content: '🍫'; 
-            font-size: 22px; 
-            background: rgba(99, 102, 241, 0.15);
-            padding: 6px;
-            border-radius: 10px;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }  
-
-        .topo-acoes { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            width: 100%; 
-        }  
-        @media (min-width: 768px) {  
+        .topo-acoes { display: flex; flex-direction: column; gap: 10px; width: 100%; }  
+        @media (min-width: 640px) {  
             .topo-acoes { flex-direction: row; justify-content: flex-end; align-items: center; flex-wrap: wrap; }  
         }  
-
         .painel-meta {  
-            background: var(--bg-surface);  
-            border: 1px solid var(--border-color);  
-            border-radius: 14px;  
-            padding: 12px 18px;  
+            background-color: #0d1322;  
+            border: 1px solid #1e293b;  
+            border-radius: 12px;  
+            padding: 12px 16px;  
             display: flex;  
             flex-direction: column;  
             gap: 8px;  
-            min-width: 300px;  
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            min-width: 280px;  
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }  
-        .meta-texto { font-size: 13px; display: flex; justify-content: space-between; font-weight: 500; color: var(--text-muted); }  
-        .meta-texto strong { color: var(--text-main); }
-        .barra-meta-fundo { background-color: rgba(255,255,255,0.06); border-radius: 6px; height: 6px; width: 100%; overflow: hidden; }  
-        .barra-meta-progresso { background: linear-gradient(90deg, #6366f1, #34d399); height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px; }  
+        .meta-texto { font-size: 13px; display: flex; justify-content: space-between; font-weight: 500; }  
+        .barra-meta-fundo { background-color: #1e293b; border-radius: 6px; height: 8px; width: 100%; overflow: hidden; }  
+        .barra-meta-progresso { background: linear-gradient(90deg, #6366f1, #34d399); height: 100%; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px; }  
         .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; font-weight: 500; transition: color 0.2s; }  
         .btn-meta:hover { color: #fff; }
         
         .dashboard-container {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 18px 28px;
-            margin: 28px 32px 0 32px;
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 14px;
+            padding: 16px 24px;
+            margin: 24px 24px 0 24px;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         @media (min-width: 768px) {
             .dashboard-container { grid-template-columns: repeat(2, 1fr); }
         }
         .dash-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px 20px;
+            background-color: #090d16;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 14px 18px;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            position: relative;
-            overflow: hidden;
         }
-        .dash-card::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--primary);
-        }
-        .dash-titulo { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
-        .dash-valor { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+        .dash-titulo { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .dash-valor { font-size: 22px; font-weight: 800; color: #f8fafc; }
 
-        #busca, #filtro-tag-topo { 
-            padding: 11px 16px; 
-            background-color: var(--bg-surface); 
-            border: 1px solid var(--border-color); 
-            border-radius: 10px; 
-            color: #fff; 
-            font-size: 13px; 
-            outline: none; 
-            transition: all 0.25s ease; 
-        }  
-        #busca { width: 100%; max-width: 200px; }
-        #filtro-tag-topo { width: 100%; max-width: 180px; }
-        #busca:focus, #filtro-tag-topo:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }  
+        #busca, #filtro-tag-topo { padding: 10px 14px; background-color: #111827; border: 1px solid #374151; border-radius: 9px; color: #fff; font-size: 13px; outline: none; transition: all 0.2s; }  
+        #busca { width: 100%; max-width: 190px; }
+        #filtro-tag-topo { width: 100%; max-width: 170px; }
+        #busca:focus, #filtro-tag-topo:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }  
         
-        .btn-principal { 
-            background: linear-gradient(135deg, #6366f1, #4f46e5); 
-            color: white; 
-            padding: 11px 20px; 
-            border-radius: 10px; 
-            font-weight: 700; 
-            border: none; 
-            cursor: pointer; 
-            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4); 
-            transition: all 0.2s ease; 
-            font-size: 13px; 
-        }  
-        .btn-principal:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6); }
+        .btn-principal { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 10px 18px; border-radius: 9px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35); transition: all 0.2s; font-size: 13px; }  
+        .btn-principal:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-principal:active { transform: scale(0.97); }  
 
-        .btn-secundario { 
-            background-color: var(--bg-surface); 
-            color: #cbd5e1; 
-            padding: 11px 16px; 
-            border-radius: 10px; 
-            font-weight: 600; 
-            border: 1px solid var(--border-color); 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
-            font-size: 13px; 
-            transition: all 0.2s ease; 
-        }
+        .btn-secundario { background-color: #1f2937; color: #e2e8f0; padding: 10px 14px; border-radius: 9px; font-weight: 600; border: 1px solid #374151; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; transition: all 0.2s; }
         .btn-secundario:active { transform: scale(0.97); }
-        .btn-secundario:hover { background-color: #1e293b; color: #fff; border-color: rgba(255,255,255,0.15); }
+        .btn-secundario:hover { background-color: #374151; color: #fff; border-color: #4b5563; }
         
-        main { padding: 28px 32px; display: grid; grid-template-columns: 1fr; gap: 24px; }  
-        @media (min-width: 1024px) { main { grid-template-columns: repeat(3, 1fr); } }  
+        main { padding: 24px; display: grid; grid-template-columns: 1fr; gap: 24px; }  
+        @media (min-width: 768px) { main { grid-template-columns: repeat(3, 1fr); } }  
         
         .coluna-kanban {  
-            background-color: var(--bg-surface) !important;  
-            border: 1px solid var(--border-color) !important;  
-            border-radius: 18px !important;  
-            padding: 20px !important;  
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;  
+            background-color: #111827 !important;  
+            border: 1px solid #1f2937 !important;  
+            border-radius: 16px !important;  
+            padding: 16px !important;  
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;  
             height: fit-content !important;  
-            max-height: 640px !important;  
+            max-height: 600px !important;  
             display: flex !important;  
             flex-direction: column !important;  
             overflow: hidden !important;  
         }  
-
-        .coluna-kanban h2 {
-            font-size: 15px !important;
-            font-weight: 700 !important;
-            letter-spacing: -0.2px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 16px !important;
-        }
           
         .container-cards {  
             display: flex !important;  
             flex-direction: column !important;  
-            gap: 14px !important;  
-            max-height: 520px !important;  
+            gap: 12px !important;  
+            max-height: 500px !important;  
             overflow-y: auto !important;  
             padding-right: 4px !important;  
             scrollbar-width: none;  
             -ms-overflow-style: none;  
         }  
-        .container-cards::-webkit-scrollbar { display: none !important; width: 0px; background: transparent; }  
+        .container-cards::-webkit-scrollbar {   
+            display: none !important;  
+            width: 0px;   
+            background: transparent;   
+        }  
           
-        .aviso-oculto { 
-            text-align: center; 
-            font-size: 12px; 
-            color: #a5b4fc; 
-            background-color: var(--bg-card); 
-            padding: 12px; 
-            border-radius: 10px; 
-            margin-top: 14px; 
-            border: 1px dashed rgba(99, 102, 241, 0.4); 
-            font-weight: 600; 
-            cursor: pointer;
-            transition: all 0.2s;
-        }  
-        .aviso-oculto:hover { background-color: #161e31; border-color: var(--primary); }
+        .aviso-oculto { text-align: center; font-size: 12px; color: #a5b4fc; background-color: #090d16; padding: 12px; border-radius: 10px; margin-top: 12px; border: 1px dashed #4338ca; font-weight: 600; transition: background 0.2s; }  
+        .aviso-oculto:hover { background-color: #111827; }
 
-        .drag-card { 
-            background-color: var(--bg-card) !important;  
-            border: 1px solid var(--border-color) !important;  
-            border-radius: 14px !important;  
-            padding: 18px !important;  
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;  
-            cursor: grab; 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative;
-        }  
-        .drag-card:hover { 
-            border-color: rgba(255, 255, 255, 0.18); 
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.4); 
-        }
+        .drag-card { background-color: #1a2234 !important; border: 1px solid #2d3748 !important; border-radius: 12px !important; padding: 16px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }  
+        .drag-card:hover { border-color: #4a5568; box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
         .drag-card:active { cursor: grabbing; }
 
-        .drag-card h4 { margin: 0 0 6px 0; font-size: 15px; color: #fff; font-weight: 700; letter-spacing: -0.2px; }  
+        .drag-card h4 { margin: 0 0 4px 0; font-size: 15px; color: #fff; font-weight: 700; letter-spacing: -0.2px; }  
         .drag-card .valor { color: #34d399; font-weight: 700; font-size: 14px; margin: 0; }  
         
-        .historico-container { 
-            background-color: #060913; 
-            padding: 10px 12px; 
-            border-radius: 10px; 
-            margin: 12px 0 0 0; 
-            max-height: 100px; 
-            overflow-y: auto; 
-            border: 1px solid rgba(255,255,255,0.04); 
-        }
-        .nota-item { font-size: 11px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px; margin-bottom: 6px; line-height: 1.4; }
+        .historico-container { background-color: #090d16; padding: 10px; border-radius: 8px; margin: 10px 0 0 0; max-height: 95px; overflow-y: auto; border: 1px solid #1e293b; }
+        .nota-item { font-size: 11px; color: #94a3b8; border-bottom: 1px solid #131b2e; padding-bottom: 6px; margin-bottom: 6px; line-height: 1.4; }
         .nota-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .nota-data { color: #818cf8; font-weight: 600; display: block; margin-bottom: 2px; }
           
-        .tag-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .tag-indicacao { background-color: rgba(139, 92, 246, 0.15); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3); }
-        .tag-ligacao { background-color: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .tag-whatsapp { background-color: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .tag-terceiros { background-color: rgba(245, 158, 11, 0.15); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .tag-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag-indicacao { background-color: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .tag-ligacao { background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .tag-whatsapp { background-color: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .tag-terceiros { background-color: rgba(245, 158, 11, 0.2); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.3); }
 
-        .data-retorno { font-size: 11px; color: #fbbf24; display: flex; align-items: center; gap: 6px; margin-top: 10px; font-weight: 600; background: rgba(251, 191, 36, 0.08); padding: 5px 10px; border-radius: 8px; width: fit-content; border: 1px solid rgba(251, 191, 36, 0.2); }
-        .data-atrasada { color: #f87171; background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.3); animation: piscar 1.5s infinite; }
+        .data-retorno { font-size: 11px; color: #fbbf24; display: flex; align-items: center; gap: 6px; margin-top: 8px; font-weight: 600; background: rgba(251, 191, 36, 0.08); padding: 4px 8px; border-radius: 6px; width: fit-content; border: 1px solid rgba(251, 191, 36, 0.15); }
+        .data-atrasada { color: #f87171; background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.2); animation: piscar 1.5s infinite; }
         @keyframes piscar { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        .alerta-sla { background-color: rgba(239, 68, 68, 0.05) !important; border: 1px solid rgba(239, 68, 68, 0.35) !important; }
+        .alerta-sla { background-color: rgba(239, 68, 68, 0.08) !important; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
 
         .btn-whatsapp {  
             background-color: #059669;  
             color: white;  
             border: none;  
-            padding: 6px 12px;  
-            border-radius: 8px;  
+            padding: 5px 10px;  
+            border-radius: 7px;  
             font-size: 11px;  
             font-weight: 700;  
             cursor: pointer;  
             display: inline-flex;  
             align-items: center;  
-            gap: 6px;  
+            gap: 5px;  
             text-decoration: none;  
-            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
+            box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
             transition: all 0.2s;
         }  
-        .btn-whatsapp:hover { background-color: #047857; filter: brightness(1.05); }
+        .btn-whatsapp:hover { background-color: #047857; }
         .btn-whatsapp:active { transform: scale(0.95); }  
 
         /* Gaveta Escondida (Sem Resposta) */
         .gaveta-container {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 28px;
-            margin: 28px 32px 0 32px;
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 24px 0 24px;
             display: none;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
         .gaveta-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 16px;
-            margin-top: 18px;
+            margin-top: 16px;
         }
-        @media (min-width: 900px) {
+        @media (min-width: 768px) {
             .gaveta-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
-        .modal-overlay { background-color: rgba(3, 7, 18, 0.82); backdrop-filter: blur(8px); }  
-        .modal-content { 
-            background-color: var(--bg-surface); 
-            border: 1px solid var(--border-color); 
-            border-radius: 20px; 
-            padding: 32px; 
-            width: 100%; 
-            max-width: 440px; 
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8); 
-        }  
-        .modal-content input, .modal-content textarea, .modal-content select { 
-            width: 93%; 
-            padding: 12px 16px; 
-            background-color: var(--bg-base); 
-            border: 1px solid var(--border-color); 
-            border-radius: 10px; 
-            color: white; 
-            margin-bottom: 14px; 
-            font-size: 13px; 
-            outline: none; 
-            transition: all 0.2s; 
-        }  
-        .modal-content input:focus, .modal-content textarea:focus, .modal-content select:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); 
-        }
-        .campo-label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600; }
+        .modal-overlay { background-color: rgba(3, 7, 18, 0.8); backdrop-filter: blur(6px); }  
+        .modal-content { background-color: #111827; border: 1px solid #1f2937; border-radius: 20px; padding: 28px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }  
+        .modal-content input, .modal-content textarea, .modal-content select { width: 94%; padding: 12px 14px; background-color: #090d16; border: 1px solid #374151; border-radius: 9px; color: white; margin-bottom: 14px; font-size: 13px; outline: none; transition: border-color 0.2s; }  
+        .modal-content input:focus, .modal-content textarea:focus, .modal-content select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+        .campo-label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 6px; font-weight: 600; }
     </style>
 </head>  
 <body>  
 <header>  
     <div class="topo-logo-meta">  
-        <h1><span>CacauCrm</span></h1>  
+        <h1>CacauCrm</h1>  
         <div class="painel-meta" id="painel-meta-container">  
             <div class="meta-texto">  
                 <span>Contratos Fechados: <strong id="faturamento-fechado" style="color: #34d399;">0</strong></span>  
-                <span>Meta: <strong id="valor-meta">0</strong></span>  
+                <span style="color: #94a3b8;">/ Meta: <strong id="valor-meta">0</strong></span>  
             </div>  
             <div class="barra-meta-fundo">  
                 <div id="barra-meta-progresso" class="barra-meta-progresso"></div>  
             </div>  
-            <button onclick="configurarMeta()" class="btn-meta">🎯 Definir Meta Comercial</button>  
+            <button onclick="configurarMeta()" class="btn-meta">🎯 Definir Meta de Contratos</button>  
         </div>  
     </div>  
     <div class="topo-acoes">  
@@ -394,13 +236,13 @@
 
 <section>
     <div class="dashboard-container">
-        <div class="dash-card" style="--primary: #38bdf8;">
+        <div class="dash-card">
             <span class="dash-titulo">🎯 Taxa de Conversão</span>
-            <span class="dash-valor" id="dash-conversao">0%</span>
+            <span class="dash-valor" id="dash-conversao" style="color: #38bdf8;">0%</span>
         </div>
-        <div class="dash-card" style="--primary: #fbbf24;">
+        <div class="dash-card">
             <span class="dash-titulo">⏳ Tempo Médio de Fechamento</span>
-            <span class="dash-valor" id="dash-tempo">0 dias</span>
+            <span class="dash-valor" id="dash-tempo" style="color: #fbbf24;">0 dias</span>
         </div>
     </div>
 </section>
@@ -408,27 +250,27 @@
 <!-- Gaveta Escondida de Clientes Sem Resposta -->
 <section id="secao-gaveta" class="gaveta-container">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="color: #f87171; margin: 0; font-size: 17px; font-weight: 700;">📭 Clientes Sem Resposta / Arquivados Automáticos</h3>
-        <button onclick="alternarGavetaSemResposta()" style="background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; font-weight: bold; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'">✕ Fechar</button>
+        <h3 style="color: #f87171; margin: 0; font-size: 18px; font-weight: 700;">📭 Clientes Sem Resposta / Arquivados Automáticos</h3>
+        <button onclick="alternarGavetaSemResposta()" style="background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; font-weight: bold; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">✕ Fechar</button>
     </div>
-    <p style="font-size: 12px; color: var(--text-muted); margin: 6px 0 0 0; line-height: 1.5;">Estes clientes passaram de 5 dias sem avanço no Kanban principal. Caso voltem a interagir ou você feche o contrato, basta movê-los de volta!</p>
+    <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 0 0; line-height: 1.5;">Estes clientes passaram de 5 dias sem avanço no Kanban principal. Caso voltem a interagir ou você feche o contrato, basta movê-los de volta!</p>
     <div id="col-sem-resposta" class="gaveta-grid"></div>
 </section>
 
 <!-- Quadro Kanban Dinâmico -->  
 <main>  
     <div class="coluna-kanban">  
-        <h2 style="color: #fbbf24;" id="titulo-contato">📌 Contato Inicial (0)</h2>  
+        <h2 style="color: #fbbf24; margin: 0 0 16px 0; font-size: 16px; font-weight: 700;" id="titulo-contato">📌 Contato Inicial (0)</h2>  
         <div id="col-contato" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'contato')"></div>  
     </div>  
 
     <div class="coluna-kanban">  
-        <h2 style="color: #818cf8;" id="titulo-proposta">📄 Proposta Enviada (0)</h2>  
+        <h2 style="color: #818cf8; margin: 0 0 16px 0; font-size: 16px; font-weight: 700;" id="titulo-proposta">📄 Proposta Enviada (0)</h2>  
         <div id="col-proposta" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'proposta')"></div>  
     </div>  
 
     <div class="coluna-kanban">  
-        <h2 style="color: #34d399;" id="titulo-fechado">🎉 Contrato Fechado (0)</h2>  
+        <h2 style="color: #34d399; margin: 0 0 16px 0; font-size: 16px; font-weight: 700;" id="titulo-fechado">🎉 Contrato Fechado (0)</h2>  
         <div id="col-fechado" class="container-cards" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'fechado')"></div>  
     </div>  
 </main>  
@@ -436,7 +278,7 @@
 <!-- Formulário Modal Flutuante -->  
 <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; padding: 16px;" class="modal-overlay">  
     <div class="modal-content">  
-        <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 800; letter-spacing: -0.3px;">Cadastrar Novo Lead</h3>  
+        <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 18px; font-size: 20px; font-weight: 800; letter-spacing: -0.3px;">Cadastrar Novo Lead</h3>  
         
         <input type="text" id="nome" placeholder="Nome do Cliente">  
         <input type="tel" id="telefone" placeholder="WhatsApp (Ex: 85999998888)">  
@@ -450,4 +292,33 @@
             <option value="Vai pensar com terceiros">Vai pensar com terceiros</option>
         </select>
 
-       
+        <label class="campo-label">Data de Retorno (Opcional):</label>
+        <input type="date" id="data-retorno">
+
+        <input type="text" id="valor" placeholder="Valor Estimado (R$)">  
+        <textarea id="notas" placeholder="Primeira anotação..." style="height: 70px; resize: none; font-family: inherit;"></textarea>  
+        
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">  
+            <button onclick="fecharModal()" style="background-color: #374151; color: white; padding: 10px 16px; border-radius: 9px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#4b5563'" onmouseout="this.style.backgroundColor='#374151'">Cancelar</button>  
+            <button onclick="salvarLead()" class="btn-principal" style="padding: 10px 18px;">Salvar Lead</button>  
+        </div>  
+    </div>  
+</div>  
+
+<script>  
+    function dispararWhatsapp(numero, nome) {  
+        let numeroLimpo = numero.replace(/\D/g, ''); 
+        if (!numeroLimpo.startsWith('55') && numeroLimpo.length <= 11) {
+            numeroLimpo = '55' + numeroLimpo;
+        }
+        var msgText = "Olá " + nome + ", tudo bem? Aqui é o Gleidson.";  
+        var msgFinal = encodeURIComponent(msgText);  
+        var urlCompleta = "https://wa.me/" + numeroLimpo + "?text=" + msgFinal;  
+        window.open(urlCompleta, '_blank');  
+    }  
+</script>  
+
+<script src="./script.js?v=30"></script>
+
+</body>  
+</html>
