@@ -57,7 +57,6 @@
         .btn-principal { background-color: #4f46e5; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); }  
         .btn-principal:active { transform: scale(0.95); }  
 
-        /* Botões de Backup */
         .btn-secundario { background-color: #334155; color: #cbd5e1; padding: 10px 15px; border-radius: 8px; font-weight: 600; border: 1px solid #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-secundario:active { transform: scale(0.95); }
         .btn-secundario:hover { background-color: #475569; color: #fff; }
@@ -101,9 +100,13 @@
 
         .drag-card h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }  
         .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }  
-        .drag-card .notas { background-color: #0f172a; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0; }  
+        
+        /* Estilos do Histórico */
+        .historico-container { background-color: #0f172a; padding: 8px; border-radius: 6px; margin: 8px 0 0 0; max-height: 90px; overflow-y: auto; }
+        .nota-item { font-size: 11px; color: #94a3b8; border-bottom: 1px solid #1e293b; padding-bottom: 4px; margin-bottom: 4px; }
+        .nota-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .nota-data { color: #818cf8; font-weight: bold; display: block; }
           
-        /* Sistema de Tags e Datas */
         .tag-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; margin-bottom: 8px; }
         .tag-indicacao { background-color: #8b5cf6; color: #fff; }
         .tag-ligacao { background-color: #3b82f6; color: #fff; }
@@ -152,7 +155,6 @@
         </div>  
     </div>  
     <div class="topo-acoes">  
-        <!-- Novo filtro por Tags -->
         <select id="filtro-tag-topo" onchange="buscarLeads()">
             <option value="">Todas as Tags</option>
             <option value="Indicação">Indicação</option>
@@ -163,7 +165,6 @@
 
         <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente...">  
         
-        <!-- Botões de Backup -->
         <button onclick="exportarBackup()" class="btn-secundario">💾 Backup</button>
         <button onclick="importarBackup()" class="btn-secundario">📂 Restaurar</button>
         <input type="file" id="input-importar" style="display: none" accept=".json" onchange="processarImportacao(event)">
@@ -211,7 +212,7 @@
         <input type="date" id="data-retorno">
 
         <input type="text" id="valor" placeholder="Valor Estimado (R$)">  
-        <textarea id="notas" placeholder="Anotações" style="height: 60px; resize: none; font-family: sans-serif;"></textarea>  
+        <textarea id="notas" placeholder="Primeira anotação..." style="height: 60px; resize: none; font-family: sans-serif;"></textarea>  
         
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">  
             <button onclick="fecharModal()" style="background-color: #475569; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;">Cancelar</button>  
@@ -223,20 +224,17 @@
 <script>  
     function dispararWhatsapp(numero, nome) {  
         let numeroLimpo = numero.replace(/\D/g, ''); 
-        
         if (!numeroLimpo.startsWith('55') && numeroLimpo.length <= 11) {
             numeroLimpo = '55' + numeroLimpo;
         }
-
         var msgText = "Olá " + nome + ", tudo bem? Aqui é o Gleidson.";  
         var msgFinal = encodeURIComponent(msgText);  
-        
         var urlCompleta = "https://wa.me/" + numeroLimpo + "?text=" + msgFinal;  
         window.open(urlCompleta, '_blank');  
     }  
 </script>  
 
-<script src="./script.js?v=24"></script>
+<script src="./script.js?v=25"></script>
 
 </body>  
 </html>
