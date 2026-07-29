@@ -10,7 +10,7 @@ body {
 /* Cabeçalho Topo */
 header {
     background-color: #1e293b;
-    border-b: 1px solid #334155;
+    border-bottom: 1px solid #334155;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -68,7 +68,7 @@ header h1 {
     background-color: #4338ca;
 }
 
-/* Painel de Colunas (Kanban) */
+/* Painel de Colunas (Kanban Dinâmico) */
 main {
     padding: 24px;
     display: grid;
@@ -82,22 +82,21 @@ main {
     }
 }
 
-/* Estilo das Colunas */
+/* Estilo das Colunas Dinâmicas (Sem fundo cinza gigante preso) */
 .coluna-kanban {
     background-color: #1e293b;
     border: 1px solid #334155;
     border-radius: 12px;
     padding: 16px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    height: fit-content; /* Faz a coluna se ajustar perfeitamente ao tamanho dos cartões */
 }
 
-.coluna-kanban h2 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #334155;
+/* Container de cartões limpo */
+.container-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 /* Cartão do Cliente (Lead) */
@@ -106,7 +105,6 @@ main {
     border: 1px solid #475569;
     border-radius: 8px;
     padding: 16px;
-    margin-bottom: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s;
 }
@@ -125,28 +123,12 @@ main {
 }
 
 .drag-card .notas {
-    background-color: #1e293b;
+    background-color: #0f172a;
     padding: 8px;
     border-radius: 6px;
     font-size: 12px;
     color: #94a3b8;
     margin: 8px 0 0 0;
-}
-
-/* Botões dentro do cartão */
-.card-acoes {
-    margin-top: 12px;
-    padding-top: 8px;
-    border-top: 1px solid #475569;
-    display: flex;
-    justify-content: space-between;
-}
-
-.card-acoes button {
-    background: none;
-    border: none;
-    font-size: 12px;
-    cursor: pointer;
 }
 
 /* Janela Modal Flutuante */
