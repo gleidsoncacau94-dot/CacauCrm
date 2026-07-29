@@ -49,7 +49,7 @@
         .barra-meta-progresso { background: linear-gradient(90deg, #4f46e5, #34d399); height: 100%; width: 0%; transition: width 0.4s ease; }  
         .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; }  
         
-        /* Estilos do Dashboard de Indicadores */
+        /* Dashboard Ajustado para 2 colunas */
         .dashboard-container {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -61,7 +61,7 @@
             gap: 16px;
         }
         @media (min-width: 768px) {
-            .dashboard-container { grid-template-columns: repeat(3, 1fr); }
+            .dashboard-container { grid-template-columns: repeat(2, 1fr); }
         }
         .dash-card {
             background-color: #0f172a;
@@ -198,16 +198,12 @@
     </div>  
 </header>  
 
-<!-- Dashboard de Indicadores Comerciais -->
+<!-- Dashboard Otimizado (Conversão e Tempo Médio) -->
 <section style="margin-top: 24px;">
     <div class="dashboard-container">
         <div class="dash-card">
             <span class="dash-titulo">🎯 Taxa de Conversão</span>
             <span class="dash-valor" id="dash-conversao" style="color: #38bdf8;">0%</span>
-        </div>
-        <div class="dash-card">
-            <span class="dash-titulo">💰 Ticket Médio Fechado</span>
-            <span class="dash-valor" id="dash-ticket" style="color: #4ade80;">R$ 0,00</span>
         </div>
         <div class="dash-card">
             <span class="dash-titulo">⏳ Tempo Médio de Fechamento</span>
@@ -277,7 +273,7 @@
     }  
 </script>  
 
-<script src="./script.js?v=26"></script>
+<script src="./script.js?v=27"></script>
 
 </body>  
 </html>
