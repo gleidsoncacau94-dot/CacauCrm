@@ -104,12 +104,12 @@ function buscarLeads() {
             
             const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // Monta o link corrigido e infalível do WhatsApp
+            // Monta o link oficial e corrigido do WhatsApp adicionando o código do país (55)
             let botaoWhatsHTML = '';
             if (lead.telefone) {
-                const textoMensagem = "Olá " + lead.nome + ", tudo bem? Aqui é o Gleidson.";
+                const textoMensagem = `Olá ${lead.nome}, tudo bem? Aqui é o Gleidson.`;
                 const mensagem = encodeURIComponent(textoMensagem);
-                botaoWhatsHTML = '<a href="https://whatsapp.com' + lead.telefone + '&text=' + mensagem + '" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>';
+                botaoWhatsHTML = `<a href="https://wa.me{lead.telefone}?text=${mensagem}" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>`;
             }
 
             card.innerHTML = `
