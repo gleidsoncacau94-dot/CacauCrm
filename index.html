@@ -4,71 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CacauCrm</title>
-    <!-- Importação do Tailwind CSS -->
-    <script src="https://unpkg.com"></script>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css?v=3">
 </head>
-<body class="bg-gray-900 text-white font-sans m-0 p-0 min-h-screen">
+<body>
 
-    <!-- Cabeçalho com Barra de Busca -->
-    <header class="p-5 bg-gray-800 border-b border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 class="text-2xl font-bold text-indigo-400">CacauCrm</h1>
-        
-        <!-- Campo de Busca -->
-        <div class="w-full sm:w-72">
-            <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente..." class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white placeholder-gray-400">
+    <!-- Cabeçalho -->
+    <header>
+        <h1>CacauCrm</h1>
+        <div>
+            <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente...">
         </div>
-
-        <!-- Botão Principal Interativo -->
-        <button onclick="abrirModal()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition-all duration-200 ease-out w-full sm:w-auto cursor-pointer flex items-center justify-center gap-2 transform border border-indigo-500/20">
-            <span class="text-xl leading-none">+</span> Novo Lead
-        </button>
+        <button onclick="abrirModal()" class="btn-principal">+ Novo Lead</button>
     </header>
 
-    <!-- Quadro Kanban de Colunas -->
-    <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Coluna: Contato -->
-        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-xl">
-            <h2 class="text-lg font-semibold text-yellow-400 mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">📌 Contato Inicial</h2>
-            <div id="col-contato" class="space-y-4 min-h-[300px]" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'contato')"></div>
+    <!-- Quadro Kanban -->
+    <main>
+        <!-- Contato -->
+        <div class="coluna-kanban">
+            <h2 style="color: #fbbf24;">📌 Contato Inicial</h2>
+            <div id="col-contato" style="min-h: 300px;"></div>
         </div>
 
-        <!-- Coluna: Proposta -->
-        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-xl">
-            <h2 class="text-lg font-semibold text-indigo-400 mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">📄 Proposta Enviada</h2>
-            <div id="col-proposta" class="space-y-4 min-h-[300px]" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'proposta')"></div>
+        <!-- Proposta -->
+        <div class="coluna-kanban">
+            <h2 style="color: #818cf8;">📄 Proposta Enviada</h2>
+            <div id="col-proposta" style="min-h: 300px;"></div>
         </div>
 
-        <!-- Coluna: Fechado -->
-        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-xl">
-            <h2 class="text-lg font-semibold text-green-400 mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">🎉 Contrato Fechado</h2>
-            <div id="col-fechado" class="space-y-4 min-h-[300px]" ondragover="permitirSoltar(event)" ondrop="soltar(event, 'fechado')"></div>
+        <!-- Fechado -->
+        <div class="coluna-kanban">
+            <h2 style="color: #34d399;">🎉 Contrato Fechado</h2>
+            <div id="col-fechado" style="min-h: 300px;"></div>
         </div>
     </main>
 
-    <!-- Modal de Cadastro Corrigido (Começa Escondido) -->
-    <div id="modal" style="display: none;" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 w-full max-w-md shadow-2xl">
-            <h3 class="text-xl font-bold mb-4 text-indigo-400">Cadastrar Novo Lead</h3>
-            <div class="space-y-3">
-                <input type="text" id="nome" placeholder="Nome do Cliente" class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white">
-                <input type="text" id="valor" placeholder="Valor Estimado (R$)" class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white">
-                <textarea id="notas" placeholder="Anotações" class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white h-24"></textarea>
-            </div>
+    <!-- Formulário Modal -->
+    <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; padding: 16px;" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 16px;">Cadastrar Novo Lead</h3>
+            <input type="text" id="nome" placeholder="Nome do Cliente">
+            <input type="text" id="valor" placeholder="Valor Estimado (R$)">
+            <textarea id="notas" placeholder="Anotações" style="height: 80px; resize: none;"></textarea>
             
-            <!-- Botões do Formulário Interativos -->
-            <div class="mt-5 flex justify-end space-x-2">
-                <button onclick="fecharModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 active:scale-95 active:bg-gray-700 text-white font-semibold rounded-lg transition-all duration-150 cursor-pointer">
-                    Cancelar
-                </button>
-                <button onclick="salvarLead()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:bg-indigo-700 text-white font-semibold rounded-lg shadow-md shadow-indigo-600/20 transition-all duration-150 cursor-pointer">
-                    Salvar
-                </button>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">
+                <button onclick="fecharModal()" style="background-color: #475569; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;">Cancelar</button>
+                <button onclick="salvarLead()" style="background-color: #4f46e5; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold;">Salvar</button>
             </div>
         </div>
     </div>
 
-    <!-- Força o navegador a puxar a lógica atualizada do script -->
-    <script src="./script.js?v=2"></script>
+    <script src="./script.js?v=3"></script>
 </body>
 </html>
