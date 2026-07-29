@@ -84,22 +84,6 @@
         .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }
         .drag-card .notas { background-color: #0f172a; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0; }
         
-        .btn-whatsapp {
-            background-color: #128c7e;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            text-decoration: none;
-        }
-        .btn-whatsapp:active { transform: scale(0.95); }
-
         .modal-overlay { background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
         .modal-content { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         .modal-content input, .modal-content textarea { width: 93%; padding: 10px; background-color: #334155; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 12px; }
@@ -149,7 +133,6 @@
         <div class="modal-content">
             <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 16px; font-size: 20px; font-weight: bold;">Cadastrar Novo Lead</h3>
             <input type="text" id="nome" placeholder="Nome do Cliente">
-            <input type="tel" id="telefone" placeholder="WhatsApp (Ex: 85999998888)">
             <input type="text" id="valor" placeholder="Valor Estimado (R$)">
             <textarea id="notas" placeholder="Anotações" style="height: 80px; resize: none; font-family: sans-serif;"></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">
@@ -159,7 +142,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA DO JAVASCRIPT EMBUTIDA DE FORMA DEFINITIVA -->
+    <!-- LÓGICA ESTÁVEL EM-BUTIDA -->
     <script>
         let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
         let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
@@ -170,7 +153,6 @@
         
         function limparCampos() {
             document.getElementById('nome').value = '';
-            document.getElementById('telefone').value = '';
             document.getElementById('valor').value = '';
             document.getElementById('notas').value = '';
         }
@@ -186,7 +168,25 @@
 
         function salvarLead() {
             const nome = document.getElementById('nome').value;
-            const telefone = document.getElementById('telefone').value.replace(/\D/g, ''); 
             const valorInput = document.getElementById('valor').value;
             const notas = document.getElementById('notas').value;
 
+            if (!nome) return alert('Digite ao menos o nome do cliente!');
+            const valorNumerico = parseFloat(valorInput.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+
+            const dataAtual = new Date().toLocaleDateString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            const novoLead = { id: Date.now().toString(), nome, valor: valorNumerico, notas, etapa: 'contato', data: dataAtual };
+            leads.push(novoLead);
+            atualizarCRM();
+            fecharModal();
+        }
+
+        function atualizarCRM() {
+            localStorage.setItem('crm_leads', JSON.stringify(leads));
+            buscarLeads();
+        }
+
+        function alternarVerMais(etapa) {
