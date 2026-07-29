@@ -159,6 +159,25 @@
         }  
         .btn-whatsapp:active { transform: scale(0.95); }  
 
+        /* Estilo da Gaveta Escondida (Sem Resposta) */
+        .gaveta-container {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0 24px 24px 24px;
+            display: none;
+        }
+        .gaveta-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        @media (min-width: 768px) {
+            .gaveta-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
         .modal-overlay { background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }  
         .modal-content { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }  
         .modal-content input, .modal-content textarea, .modal-content select { width: 93%; padding: 10px; background-color: #334155; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 12px; }  
@@ -191,6 +210,7 @@
 
         <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente...">  
         
+        <button onclick="alternarGavetaSemResposta()" id="btn-gaveta-toggle" class="btn-secundario">📭 Sem Resposta (0)</button>
         <button onclick="exportarBackup()" class="btn-secundario">💾 Backup</button>
         <button onclick="importarBackup()" class="btn-secundario">📂 Restaurar</button>
         <input type="file" id="input-importar" style="display: none" accept=".json" onchange="processarImportacao(event)">
@@ -210,6 +230,16 @@
             <span class="dash-valor" id="dash-tempo" style="color: #fbbf24;">0 dias</span>
         </div>
     </div>
+</section>
+
+<!-- Gaveta Escondida de Clientes Sem Resposta -->
+<section id="secao-gaveta" class="gaveta-container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="color: #f87171; margin: 0; font-size: 18px;">📭 Clientes Sem Resposta / Arquivados Automáticos</h3>
+        <button onclick="alternarGavetaSemResposta()" style="background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; font-weight: bold;">✕ Fechar Gaveta</button>
+    </div>
+    <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 0 0;">Estes clientes passaram de 5 dias sem avanço e saíram do Kanban principal. Se eles responderem ou você fechar, basta movê-los de volta!</p>
+    <div id="col-sem-resposta" class="gaveta-grid"></div>
 </section>
 
 <!-- Quadro Kanban Dinâmico -->  
@@ -273,7 +303,7 @@
     }  
 </script>  
 
-<script src="./script.js?v=28"></script>
+<script src="./script.js?v=29"></script>
 
 </body>  
 </html>
