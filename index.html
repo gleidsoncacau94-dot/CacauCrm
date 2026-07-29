@@ -4,8 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CacauCrm</title>
-    <!-- Link atualizado (v=11) para forçar o fechamento perfeito da coluna -->
-    <link rel="stylesheet" href="./style.css?v=11">
+    <!-- Estilização Premium Embutida Definitiva para Celular -->
+    <style>
+        body {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .topo-logo-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .topo-logo-meta { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+        header h1 { font-size: 26px; font-weight: bold; color: #818cf8; margin: 0; }
+        .topo-acoes { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        @media (min-width: 640px) {
+            .topo-acoes { flex-direction: row; justify-content: flex-end; align-items: center; }
+        }
+        .painel-meta {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 260px;
+        }
+        .meta-texto { font-size: 13px; display: flex; justify-content: space-between; }
+        .barra-meta-fundo { background-color: #334155; border-radius: 4px; height: 8px; width: 100%; overflow: hidden; }
+        .barra-meta-progresso { background: linear-gradient(90deg, #4f46e5, #34d399); height: 100%; width: 0%; transition: width 0.4s ease; }
+        .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; }
+        #busca { width: 100%; max-width: 280px; padding: 10px 15px; background-color: #334155; border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }
+        #busca:focus { border-color: #6366f1; }
+        .btn-principal { background-color: #4f46e5; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); }
+        .btn-principal:active { transform: scale(0.95); }
+        main { padding: 24px; display: grid; grid-template-columns: 1fr; gap: 24px; }
+        @media (min-width: 768px) { main { grid-template-columns: repeat(3, 1fr); } }
+        
+        /* TRAVA ABSOLUTA DA COLUNA */
+        .coluna-kanban {
+            background-color: #1e293b !important;
+            border: 1px solid #334155 !important;
+            border-radius: 12px !important;
+            padding: 16px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+            height: fit-content !important;
+            max-height: 580px !important; /* Limita a altura total máxima da coluna inteira */
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* TRAVA ABSOLUTA DO CONTAINER DE CARTÕES */
+        .container-cards {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            max-height: 400px !important; /* Tranca o espaço para caber exatamente 3 clientes */
+            overflow-y: scroll !important;  /* Ativa a rolagem por toque no celular marrento */
+            padding-right: 4px !important;
+        }
+        /* Esconde barras de rolagem do sistema para manter o design limpo */
+        .container-cards::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        .aviso-oculto { text-align: center; font-size: 12px; color: #a5b4fc; background-color: #0f172a; padding: 10px; border-radius: 8px; margin-top: 12px; border: 1px dashed #4338ca; font-weight: 500; }
+        .drag-card { background-color: #334155 !important; border: 1px solid #475569 !important; border-radius: 8px !important; padding: 16px !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important; }
+        .drag-card h4 { margin: 0 0 6px 0; font-size: 16px; color: #fff; }
+        .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }
+        .drag-card .notas { background-color: #0f172a; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
+        .modal-content { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; width: 100%; max-w: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .modal-content input, .modal-content textarea { width: 93%; padding: 10px; background-color: #334155; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 12px; }
+    </style>
 </head>
 <body>
 
@@ -13,8 +97,6 @@
     <header>
         <div class="topo-logo-meta">
             <h1>CacauCrm</h1>
-            
-            <!-- Painel de Meta Mensal por Contratos -->
             <div class="painel-meta" id="painel-meta-container">
                 <div class="meta-texto">
                     <span>Contratos Fechados: <strong id="faturamento-fechado" style="color: #34d399;">0</strong></span>
@@ -26,7 +108,6 @@
                 <button onclick="configurarMeta()" class="btn-meta">🎯 Definir Meta de Contratos</button>
             </div>
         </div>
-
         <div class="topo-acoes">
             <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente...">
             <button onclick="abrirModal()" class="btn-principal">+ Novo Lead</button>
@@ -37,19 +118,19 @@
     <main>
         <!-- Contato -->
         <div class="coluna-kanban">
-            <h2 style="color: #fbbf24;" id="titulo-contato">📌 Contato Inicial (0)</h2>
+            <h2 style="color: #fbbf24; margin: 0 0 16px 0;" id="titulo-contato">📌 Contato Inicial (0)</h2>
             <div id="col-contato" class="container-cards"></div>
         </div>
 
         <!-- Proposta -->
         <div class="coluna-kanban">
-            <h2 style="color: #818cf8;" id="titulo-proposta">📄 Proposta Enviada (0)</h2>
+            <h2 style="color: #818cf8; margin: 0 0 16px 0;" id="titulo-proposta">📄 Proposta Enviada (0)</h2>
             <div id="col-proposta" class="container-cards"></div>
         </div>
 
         <!-- Fechado -->
         <div class="coluna-kanban">
-            <h2 style="color: #34d399;" id="titulo-fechado">🎉 Contrato Fechado (0)</h2>
+            <h2 style="color: #34d399; margin: 0 0 16px 0;" id="titulo-fechado">🎉 Contrato Fechado (0)</h2>
             <div id="col-fechado" class="container-cards"></div>
         </div>
     </main>
@@ -60,8 +141,7 @@
             <h3 style="color: #818cf8; margin-top: 0; margin-bottom: 16px; font-size: 20px; font-weight: bold;">Cadastrar Novo Lead</h3>
             <input type="text" id="nome" placeholder="Nome do Cliente">
             <input type="text" id="valor" placeholder="Valor Estimado (R$)">
-            <textarea id="notas" placeholder="Anotações" style="height: 80px; resize: none;"></textarea>
-            
+            <textarea id="notas" placeholder="Anotações" style="height: 80px; resize: none; font-family: sans-serif;"></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px;">
                 <button onclick="fecharModal()" style="background-color: #475569; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;">Cancelar</button>
                 <button onclick="salvarLead()" style="background-color: #4f46e5; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold;">Salvar</button>
@@ -69,7 +149,7 @@
         </div>
     </div>
 
-    <!-- Script atualizado para conversar com a nova versão -->
-    <script src="./script.js?v=12"></script>
+    <!-- Puxa a versão limpa do script -->
+    <script src="./script.js?v=13"></script>
 </body>
 </html>
