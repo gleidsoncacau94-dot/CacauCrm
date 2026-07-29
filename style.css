@@ -1,10 +1,176 @@
-/* Ajustes finos para o efeito de arrastar e soltar (Drag and Drop) */
-.drag-card {
-    cursor: grab;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.drag-card:active {
-    cursor: grabbing;
-    transform: scale(1.02);
+/* Configurações Gerais e Cores de Fundo */
+body {
+    background-color: #0f172a !important; /* Azul escuro premium */
+    color: #f8fafc !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
+/* Cabeçalho Topo */
+header {
+    background-color: #1e293b;
+    border-b: 1px solid #334155;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+@media (min-width: 640px) {
+    header {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #818cf8; /* Roxo/Indigo moderno */
+    margin: 0;
+}
+
+/* Barra de Busca */
+#busca {
+    width: 100%;
+    max-width: 280px;
+    padding: 10px 15px;
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#busca:focus {
+    border-color: #6366f1;
+}
+
+/* Botão Novo Lead */
+.btn-principal {
+    background-color: #4f46e5;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+    transition: all 0.2s ease;
+}
+
+.btn-principal:active {
+    transform: scale(0.95);
+    background-color: #4338ca;
+}
+
+/* Painel de Colunas (Kanban) */
+main {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    main {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Estilo das Colunas */
+.coluna-kanban {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.coluna-kanban h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #334155;
+}
+
+/* Cartão do Cliente (Lead) */
+.drag-card {
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.drag-card h4 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    color: #fff;
+}
+
+.drag-card .valor {
+    color: #4ade80; /* Verde Dinheiro */
+    font-weight: 500;
+    font-size: 14px;
+    margin: 0;
+}
+
+.drag-card .notas {
+    background-color: #1e293b;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 8px 0 0 0;
+}
+
+/* Botões dentro do cartão */
+.card-acoes {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #475569;
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-acoes button {
+    background: none;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* Janela Modal Flutuante */
+.modal-overlay {
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content input, .modal-content textarea {
+    width: 93%;
+    padding: 10px;
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    color: white;
+    margin-bottom: 12px;
+}
