@@ -15,6 +15,8 @@ function fecharModal() {
 function limparCampos() {
     document.getElementById('nome').value = '';
     document.getElementById('telefone').value = '';
+    document.getElementById('tag').value = '';
+    document.getElementById('data-retorno').value = '';
     document.getElementById('valor').value = '';
     document.getElementById('notas').value = '';
 }
@@ -33,6 +35,8 @@ function configurarMeta() {
 function salvarLead() {
     const nome = document.getElementById('nome').value;
     const telefone = document.getElementById('telefone').value.replace(/\D/g, '');
+    const tag = document.getElementById('tag').value;
+    const dataRetorno = document.getElementById('data-retorno').value;
     const valorInput = document.getElementById('valor').value;
     const notas = document.getElementById('notas').value;
 
@@ -48,6 +52,8 @@ function salvarLead() {
         id: Date.now().toString(),  
         nome,  
         telefone,   
+        tag,
+        dataRetorno,
         valor: valorNumerico,  
         notas,  
         etapa: 'contato',  
@@ -61,12 +67,10 @@ function salvarLead() {
 
 function atualizarCRM() {
     const agora = Date.now();
-    const limiteDiasEmMs = 5 * 24 * 60 * 60 * 1000; // 5 dias completos
+    const limiteDiasEmMs = 5 * 24 * 60 * 60 * 1000;
 
-    // Mantém quem tá fechado OU quem tem menos de 5 dias
     leads = leads.filter(lead => {
         if (lead.etapa === 'fechado') return true; 
-        
         const idadeDoLead = agora - parseInt(lead.id);
         return idadeDoLead <= limiteDiasEmMs;
     });
@@ -83,6 +87,10 @@ function alternarVerMais(etapa) {
 function buscarLeads() {
     const buscaInput = document.getElementById('busca');
     const termo = buscaInput ? buscaInput.value.toLowerCase() : '';
+    
+    // Pega o valor selecionado no filtro de tag
+    const tagFiltroInput = document.getElementById('filtro-tag-topo');
+    const termoTag = tagFiltroInput ? tagFiltroInput.value : '';
 
     document.getElementById('col-contato').innerHTML = '';  
     document.getElementById('col-proposta').innerHTML = '';  
@@ -102,38 +110,34 @@ function buscarLeads() {
     leads.forEach(lead => {  
         const correspondeNome = lead.nome.toLowerCase().includes(termo);  
         const correspondeNotas = lead.notas && lead.notas.toLowerCase().includes(termo);  
+        const correspondeTag = termoTag === '' || lead.tag === termoTag;
 
-        if (correspondeNome || correspondeNotas) {  
+        // Só mostra se passar na pesquisa de texto E no filtro da tag
+        if ((correspondeNome || correspondeNotas) && correspondeTag) {  
             etapasComMatch[lead.etapa] = true;  
             contadores[lead.etapa] += 1;  
 
-            if (contadores[lead.etapa] > 4 && !colunasExpandidas[lead.etapa] && termo.length === 0) {  
+            if (contadores[lead.etapa] > 4 && !colunasExpandidas[lead.etapa] && termo.length === 0 && termoTag === '') {  
                 return;   
             }  
 
             const card = document.createElement('div');  
             card.className = "drag-card";  
             
-            // HABILITA O ARRASTAR E SOLTAR
             card.setAttribute('draggable', 'true');
             card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
 
-            // SISTEMA DE CORES SLA (Borda lateral)
             let corSla = "transparent";
             let diasDecorridos = 0;
 
             if (lead.etapa !== 'fechado') {
                 diasDecorridos = (Date.now() - parseInt(lead.id)) / (1000 * 60 * 60 * 24); 
                 
-                if (diasDecorridos < 2) {
-                    corSla = "#22c55e"; // Verde (0 a 2 dias)
-                } else if (diasDecorridos >= 2 && diasDecorridos < 4) {
-                    corSla = "#f97316"; // Laranja (2 a 4 dias)
-                } else {
-                    corSla = "#ef4444"; // Vermelho (4 a 5 dias)
-                }
+                if (diasDecorridos < 2) { corSla = "#22c55e"; } 
+                else if (diasDecorridos >= 2 && diasDecorridos < 4) { corSla = "#f97316"; } 
+                else { corSla = "#ef4444"; }
             } else {
-                corSla = "#34d399"; // Verde padrão Fechado
+                corSla = "#34d399";
             }
             
             card.style.borderLeft = `5px solid ${corSla}`;
@@ -151,15 +155,54 @@ function buscarLeads() {
                 infoTempo = `<span style="font-size: 11px; color: ${corSla}; font-weight: bold; margin-left: auto;">${diasArredondados > 0 ? diasArredondados + ' dias no funil' : 'Entrou hoje'}</span>`;
             }
 
+            // Lógica para mostrar as Tags
+            let badgeTag = '';
+            if (lead.tag) {
+                let classeTag = '';
+                if(lead.tag === 'Indicação') classeTag = 'tag-indicacao';
+                if(lead.tag === 'Cliente Ligação') classeTag = 'tag-ligacao';
+                if(lead.tag === 'Cliente WhatsApp') classeTag = 'tag-whatsapp';
+                if(lead.tag === 'Vai pensar com terceiros') classeTag = 'tag-terceiros';
+                badgeTag = `<div class="tag-badge ${classeTag}">${lead.tag}</div>`;
+            }
+
+            // Lógica para mostrar a Data de Retorno
+            let badgeDataRetorno = '';
+            if (lead.dataRetorno && lead.etapa !== 'fechado') {
+                const dataSplit = lead.dataRetorno.split('-');
+                const dataFormatada = `${dataSplit[2]}/${dataSplit[1]}/${dataSplit[0]}`; // DD/MM/YYYY
+                
+                const dataObj = new Date(lead.dataRetorno + "T00:00:00");
+                const hoje = new Date();
+                hoje.setHours(0,0,0,0); // Zera as horas para comparar apenas os dias
+
+                let icone = "📅";
+                let classeData = "";
+
+                if (dataObj < hoje) {
+                    icone = "🚨";
+                    classeData = "data-atrasada"; // Passou da data
+                } else if (dataObj.getTime() === hoje.getTime()) {
+                    icone = "🔔";
+                    classeData = "data-atrasada"; // É hoje!
+                }
+
+                badgeDataRetorno = `<div class="data-retorno ${classeData}">${icone} Retorno: ${dataFormatada}</div>`;
+            }
+
             card.innerHTML = `  
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">  
-                    <h4 style="font-weight: bold; margin: 0;">${lead.nome}</h4>  
+                    <div>
+                        ${badgeTag}
+                        <h4 style="font-weight: bold; margin: 0;">${lead.nome}</h4>  
+                    </div>
                     ${botaoWhatsHTML}  
                 </div>  
                 <div style="display: flex; align-items: center; margin-top: 4px;">
                     <p class="valor" style="margin: 0;">${valorFormatado}</p>  
                     ${infoTempo}
                 </div>
+                ${badgeDataRetorno}
                 <p class="notas">${lead.notas || 'Sem anotações'}</p>  
                 <span style="font-size: 11px; color: #64748b; display: block; margin-top: 10px; font-style: italic;">📅 Cadastrado em: ${lead.data || 'N/A'}</span>  
                 <div class="card-acoes" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">  
@@ -181,7 +224,7 @@ function buscarLeads() {
             containerCards.style.overflowY = "hidden";  
         }  
 
-        if (contadores[etapa] > 4 && termo.length === 0) {  
+        if (contadores[etapa] > 4 && termo.length === 0 && termoTag === '') {  
             const botaoVerMais = document.createElement('button');  
             botaoVerMais.className = "aviso-oculto";  
             botaoVerMais.style.width = "100%";  
@@ -211,7 +254,7 @@ function buscarLeads() {
     document.getElementById('barra-meta-progresso').style.width = `${porcentagemMeta}%`;  
 
     Object.keys(colunasFisicas).forEach(etapa => {  
-        if (termo.length > 0) {  
+        if (termo.length > 0 || termoTag !== '') {  
             colunasFisicas[etapa].style.setProperty('display', etapasComMatch[etapa] ? 'block' : 'none', 'important');  
         } else {  
             colunasFisicas[etapa].style.setProperty('display', 'block', 'important');  
@@ -247,10 +290,6 @@ function excluirLead(id) {
     }
 }
 
-// ==========================================
-// SISTEMA DE BACKUP (EXPORTAR E IMPORTAR)
-// ==========================================
-
 function exportarBackup() {
     const backupDados = {
         leads: leads,
@@ -281,30 +320,20 @@ function processarImportacao(event) {
     leitor.onload = function(e) {
         try {
             const backup = JSON.parse(e.target.result);
-            
             if (backup.leads !== undefined) {
                 if(confirm("Atenção: Isso vai substituir os clientes atuais da tela pelos do backup. Deseja continuar?")) {
                     leads = backup.leads;
                     metaContratos = backup.metaContratos || 0;
-                    
                     localStorage.setItem('crm_leads', JSON.stringify(leads));
                     localStorage.setItem('crm_meta_contratos', metaContratos);
-                    
                     atualizarCRM();
                     alert("✅ Backup restaurado com sucesso!");
                 }
-            } else {
-                alert("❌ Arquivo de backup inválido. Tente outro arquivo.");
-            }
-        } catch (erro) {
-            alert("❌ Ocorreu um erro ao ler o arquivo.");
-        }
-        
+            } else { alert("❌ Arquivo de backup inválido. Tente outro arquivo."); }
+        } catch (erro) { alert("❌ Ocorreu um erro ao ler o arquivo."); }
         event.target.value = '';
     };
-    
     leitor.readAsText(arquivo);
 }
 
-// Inicia o CRM
 setTimeout(atualizarCRM, 300);
