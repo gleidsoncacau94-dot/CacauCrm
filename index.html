@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CacauCrm</title>
-    <!-- Importação direta e atualizada do Tailwind CSS -->
+    <!-- Importação do Tailwind CSS -->
     <script src="https://unpkg.com"></script>
     <link rel="stylesheet" href="./style.css">
 </head>
@@ -14,13 +14,14 @@
     <header class="p-5 bg-gray-800 border-b border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
         <h1 class="text-2xl font-bold text-indigo-400">CacauCrm</h1>
         
-        <!-- Campo de Busca funcionando -->
+        <!-- Campo de Busca -->
         <div class="w-full sm:w-72">
             <input type="text" id="busca" oninput="buscarLeads()" placeholder="🔍 Buscar cliente..." class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white placeholder-gray-400">
         </div>
 
-        <button onclick="abrirModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg font-semibold transition w-full sm:w-auto cursor-pointer">
-            + Novo Lead
+        <!-- Botão Principal Interativo -->
+        <button onclick="abrirModal()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition-all duration-200 ease-out w-full sm:w-auto cursor-pointer flex items-center justify-center gap-2 transform border border-indigo-500/20">
+            <span class="text-xl leading-none">+</span> Novo Lead
         </button>
     </header>
 
@@ -54,9 +55,15 @@
                 <input type="text" id="valor" placeholder="Valor Estimado (R$)" class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white">
                 <textarea id="notas" placeholder="Anotações" class="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-indigo-500 text-white h-24"></textarea>
             </div>
+            
+            <!-- Botões do Formulário com Interações Avançadas -->
             <div class="mt-5 flex justify-end space-x-2">
-                <button onclick="fecharModal()" class="px-4 py-2 bg-gray-600 rounded-lg hover:bg-gray-500 cursor-pointer">Cancelar</button>
-                <button onclick="salvarLead()" class="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500 cursor-pointer">Salvar</button>
+                <button onclick="fecharModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 active:scale-95 active:bg-gray-700 text-white font-semibold rounded-lg transition-all duration-150 cursor-pointer">
+                    Cancelar
+                </button>
+                <button onclick="salvarLead()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 active:bg-indigo-700 text-white font-semibold rounded-lg shadow-md shadow-indigo-600/20 transition-all duration-150 cursor-pointer">
+                    Salvar
+                </button>
             </div>
         </div>
     </div>
