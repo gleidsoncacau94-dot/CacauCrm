@@ -76,12 +76,11 @@
             flex-direction: column !important;
             gap: 12px !important;
             max-height: 480px !important;
-            overflow-y: auto !important; /* Permite o scroll vertical quando necessário */
+            overflow-y: auto !important;
             padding-right: 4px !important;
-            scrollbar-width: none; /* Esconde a barra no Firefox */
-            -ms-overflow-style: none; /* Esconde a barra no IE/Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-        /* Esconde a barra de rolagem no Chrome, Safari e Opera */
         .container-cards::-webkit-scrollbar { 
             display: none !important;
             width: 0px; 
@@ -175,7 +174,17 @@
         </div>
     </div>
 
-    <!-- Puxa a nova versão do script atualizada para v=20 para forçar o cache a atualizar -->
-    <script src="./script.js?v=20"></script>
+    <!-- FUNÇÃO DE DISPARO INDEPEDENTE DE CACHE -->
+    <script>
+        function dispararWhatsapp(numero, nome) {
+            var msgText = "Olá " + nome + ", tudo bem? Aqui é o Gleidson.";
+            var msgFinal = encodeURIComponent(msgText);
+            var urlCompleta = "https://wa.me" + numero + "?text=" + msgFinal;
+            window.open(urlCompleta, '_blank');
+        }
+    </script>
+
+    <!-- Puxa a nova versão do script (v=21) -->
+    <script src="./script.js?v=21"></script>
 </body>
 </html>
