@@ -104,7 +104,7 @@ function buscarLeads() {
             
             const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // MUDANÇA CRÍTICA AQUI: Concatenação tradicional pura com "+" para o navegador não ler como texto literal
+            // SOLUÇÃO DEFINITIVA: Concatenação tradicional com a barra "/" inclusa após wa.me
             let botaoWhatsHTML = '';
             if (lead.telefone) {
                 const textoMensagem = "Olá " + lead.nome + ", tudo bem? Aqui é o Gleidson.";
