@@ -1,7 +1,14 @@
 let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
 
-function abrirModal() { document.getElementById('modal').classList.remove('hidden'); }
-function fecharModal() { document.getElementById('modal').classList.add('hidden'); limparCampos(); }
+// Funções corrigidas para abrir e fechar o modal usando display nativo
+function abrirModal() { 
+    document.getElementById('modal').style.display = 'flex'; 
+}
+
+function fecharModal() { 
+    document.getElementById('modal').style.display = 'none'; 
+    limparCampos(); 
+}
 
 function limparCampos() {
     document.getElementById('nome').value = '';
@@ -31,7 +38,7 @@ function salvarLead() {
 
 function atualizarCRM() {
     localStorage.setItem('crm_leads', JSON.stringify(leads));
-    buscarLeads(); // Chama a função de busca para renderizar os cartões filtrados ou todos
+    buscarLeads();
 }
 
 function buscarLeads() {
@@ -67,7 +74,6 @@ function buscarLeads() {
     });
 }
 
-// Função auxiliar para celulares (onde arrastar com o dedo é difícil)
 function mudarEtapa(id) {
     leads = leads.map(lead => {
         if (lead.id === id) {
@@ -95,5 +101,5 @@ function excluirLead(id) {
     }
 }
 
-// Inicializa a tela
-setTimeout(atualizarCRM, 500);
+// Inicializa a tela limpando o atraso de carregamento
+setTimeout(atualizarCRM, 300);
