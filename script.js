@@ -1,6 +1,5 @@
 let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
 
-// Funções corrigidas para abrir e fechar o modal usando display nativo
 function abrirModal() { 
     document.getElementById('modal').style.display = 'flex'; 
 }
@@ -23,12 +22,22 @@ function salvarLead() {
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');
 
+    // Registra a data e hora exatas do cadastro
+    const dataAtual = new Date().toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
     const novoLead = {
         id: Date.now().toString(),
         nome,
         valor: valor || '0',
         notas,
-        etapa: 'contato'
+        etapa: 'contato',
+        data: dataAtual // Salva a data no histórico do cliente
     };
 
     leads.push(novoLead);
@@ -55,17 +64,17 @@ function buscarLeads() {
 
         if (correspondeNome || correspondeNotas) {
             const card = document.createElement('div');
-            card.className = "bg-gray-700 p-4 rounded-lg border border-gray-600 shadow-md drag-card";
-            card.draggable = true;
-            card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
+            card.className = "drag-card";
             
             card.innerHTML = `
-                <h4 class="font-bold text-white text-base">${lead.nome}</h4>
-                <p class="text-sm text-green-400 font-medium mt-1">R$ ${lead.valor}</p>
-                <p class="text-xs text-gray-400 mt-2 bg-gray-800 p-2 rounded">${lead.notas || 'Sem anotações'}</p>
-                <div class="mt-3 flex justify-between items-center border-t border-gray-600 pt-2">
-                    <button onclick="mudarEtapa('${lead.id}')" class="text-xs text-indigo-400 hover:underline cursor-pointer">Mover Etapa</button>
-                    <button onclick="excluirLead('${lead.id}')" class="text-xs text-red-400 hover:underline cursor-pointer">Excluir</button>
+                <h4 style="font-weight: bold; margin-bottom: 4px;">${lead.nome}</h4>
+                <p class="valor" style="margin: 0; font-size: 14px; font-weight: 600;">R$ ${lead.valor}</p>
+                <p class="notas">${lead.notas || 'Sem anotações'}</p>
+                <!-- Exibe a data e hora de criação do lead -->
+                <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 10px; font-style: italic;">📅 Cadastrado em: ${lead.data || 'N/A'}</span>
+                <div class="card-acoes" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">
+                    <button onclick="mudarEtapa('${lead.id}')" style="color: #818cf8; text-decoration: underline; font-weight: 500; background: none; border: none; font-size: 12px; cursor: pointer;">Mover Etapa ➜</button>
+                    <button onclick="excluirLead('${lead.id}')" style="color: #f87171; text-decoration: underline; background: none; border: none; font-size: 12px; cursor: pointer;">Excluir</button>
                 </div>
             `;
 
@@ -101,5 +110,5 @@ function excluirLead(id) {
     }
 }
 
-// Inicializa a tela limpando o atraso de carregamento
+// Inicializa a tela limpando o cache
 setTimeout(atualizarCRM, 300);
