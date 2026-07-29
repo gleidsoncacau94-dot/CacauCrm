@@ -104,7 +104,7 @@ function buscarLeads() {
             
             const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // Monta o link oficial e corrigido do WhatsApp adicionando o código do país (55)
+            // CORREÇÃO CRÍTICA: Link oficial com template strings (crases) para renderizar a variável corretamente
             let botaoWhatsHTML = '';
             if (lead.telefone) {
                 const textoMensagem = `Olá ${lead.nome}, tudo bem? Aqui é o Gleidson.`;
