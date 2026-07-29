@@ -64,7 +64,7 @@ function salvarLead() {
         historico: historicoInicial,  
         etapa: 'contato',  
         data: dataAtual,
-        timestampCriacao: Date.now(), // Armazena timestamp para cálculo de tempo médio
+        timestampCriacao: Date.now(),
         timestampFechamento: null
     };  
 
@@ -134,21 +134,16 @@ function buscarLeads() {
     let contadores = { contato: 0, proposta: 0, fechado: 0 };  
     let etapasComMatch = { contato: false, proposta: false, fechado: false };  
 
-    // Variáveis para cálculo do Dashboard
     let totalLeadsHistorico = leads.length;
     let totalFechadosContagem = 0;
-    let somaValoresFechados = 0;
     let somaDiasFechamento = 0;
 
     document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());  
 
     leads.forEach(lead => {  
-        // Coleta métricas globais para o Dashboard
         if (lead.etapa === 'fechado') {
             totalFechadosContagem++;
-            somaValoresFechados += (lead.valor || 0);
 
-            // Calcula tempo de fechamento se tiver o timestamp de criação e fechamento
             let tCriacao = lead.timestampCriacao || parseInt(lead.id);
             let tFechamento = lead.timestampFechamento || Date.now();
             let diasAteFechar = (tFechamento - tCriacao) / (1000 * 60 * 60 * 24);
@@ -294,13 +289,10 @@ function buscarLeads() {
         }  
     });  
 
-    // Atualiza os cálculos do Dashboard de Indicadores
     let taxaConversao = totalLeadsHistorico > 0 ? (totalFechadosContagem / totalLeadsHistorico) * 100 : 0;
-    let ticketMedio = totalFechadosContagem > 0 ? somaValoresFechados / totalFechadosContagem : 0;
     let tempoMedio = totalFechadosContagem > 0 ? somaDiasFechamento / totalFechadosContagem : 0;
 
     document.getElementById('dash-conversao').innerText = `${taxaConversao.toFixed(1)}%`;
-    document.getElementById('dash-ticket').innerText = ticketMedio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     document.getElementById('dash-tempo').innerText = `${Math.round(tempoMedio)} dias`;
 
     Object.keys(contadores).forEach(etapa => {  
@@ -357,7 +349,7 @@ function mudarEtapa(id) {
                 lead.etapa = 'proposta';
             } else if (lead.etapa === 'proposta') {
                 lead.etapa = 'fechado';
-                lead.timestampFechamento = Date.now(); // Marca o momento exato em que virou contrato
+                lead.timestampFechamento = Date.now();
             } else {
                 lead.etapa = 'contato';
                 lead.timestampFechamento = null;
