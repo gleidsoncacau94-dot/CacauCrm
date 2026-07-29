@@ -65,6 +65,7 @@ function salvarLead() {
         etapa: 'contato',  
         data: dataAtual,
         timestampCriacao: Date.now(),
+        timestampMudancaEtapa: Date.now(), // Marca quando entrou na etapa atual para o SLA
         timestampFechamento: null
     };  
 
@@ -176,14 +177,22 @@ function buscarLeads() {
             card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
 
             let corSla = "transparent";
-            let diasDecorridos = 0;
+            let diasNaEtapa = 0;
+            let estaParado = false;
 
             if (lead.etapa !== 'fechado') {
-                diasDecorridos = (Date.now() - parseInt(lead.id)) / (1000 * 60 * 60 * 24); 
-                
-                if (diasDecorridos < 2) { corSla = "#22c55e"; } 
-                else if (diasDecorridos >= 2 && diasDecorridos < 4) { corSla = "#f97316"; } 
-                else { corSla = "#ef4444"; }
+                let baseTempo = lead.timestampMudancaEtapa || lead.timestampCriacao || parseInt(lead.id);
+                dianNaEtapaCalculo = (Date.now() - baseTempo) / (1000 * 60 * 60 * 24);
+                diasNaEtapa = Math.floor(dianNaEtapaCalculo);
+
+                // Regra de SLA: Mais de 2 dias na mesma coluna aciona alerta de parado
+                if (diasNaEtapa >= 2) {
+                    estaParado = true;
+                    card.classList.add('alerta-sla');
+                    corSla = "#ef4444";
+                } else {
+                    corSla = "#22c55e";
+                }
             } else {
                 corSla = "#34d399";
             }
@@ -198,9 +207,12 @@ function buscarLeads() {
             }  
 
             let infoTempo = '';
-            if (lead.etapa !== 'fechado' && diasDecorridos > 0) {
-                let diasArredondados = Math.floor(diasDecorridos);
-                infoTempo = `<span style="font-size: 11px; color: ${corSla}; font-weight: bold; margin-left: auto;">${diasArredondados > 0 ? diasArredondados + ' dias no funil' : 'Entrou hoje'}</span>`;
+            if (lead.etapa !== 'fechado') {
+                if (estaParado) {
+                    infoTempo = `<span style="font-size: 11px; color: #ef4444; font-weight: bold; margin-left: auto;">⚠️ Parado há ${diasNaEtapa} dias</span>`;
+                } else {
+                    infoTempo = `<span style="font-size: 11px; color: #22c55e; font-weight: bold; margin-left: auto;">${diasNaEtapa > 0 ? diasNaEtapa + ' dias na etapa' : 'Entrou hoje'}</span>`;
+                }
             }
 
             let badgeTag = '';
@@ -345,15 +357,21 @@ function buscarLeads() {
 function mudarEtapa(id) {
     leads = leads.map(lead => {
         if (lead.id === id) {
+            let novaEtapa = lead.etapa;
             if (lead.etapa === 'contato') {
-                lead.etapa = 'proposta';
+                novaEtapa = 'proposta';
             } else if (lead.etapa === 'proposta') {
-                lead.etapa = 'fechado';
-                lead.timestampFechamento = Date.now();
+                novaEtapa = 'fechado';
             } else {
-                lead.etapa = 'contato';
-                lead.timestampFechamento = null;
+                novaEtapa = 'contato';
             }
+
+            return {
+                ...lead,
+                etapa: novaEtapa,
+                timestampMudancaEtapa: Date.now(),
+                timestampFechamento: novaEtapa === 'fechado' ? Date.now() : null
+            };
         }
         return lead;
     });
@@ -367,13 +385,12 @@ function soltar(e, novaEtapa) {
     const id = e.dataTransfer.getData('text/plain');
     leads = leads.map(lead => {
         if (lead.id === id) {
-            let atualizado = { ...lead, etapa: novaEtapa };
-            if (novaEtapa === 'fechado' && lead.etapa !== 'fechado') {
-                atualizado.timestampFechamento = Date.now();
-            } else if (novaEtapa !== 'fechado') {
-                atualizado.timestampFechamento = null;
-            }
-            return atualizado;
+            return {
+                ...lead,
+                etapa: novaEtapa,
+                timestampMudancaEtapa: Date.now(),
+                timestampFechamento: novaEtapa === 'fechado' ? Date.now() : null
+            };
         }
         return lead;
     });
