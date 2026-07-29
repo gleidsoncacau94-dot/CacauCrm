@@ -31,26 +31,53 @@ function salvarLead() {
 
 function atualizarCRM() {
     localStorage.setItem('crm_leads', JSON.stringify(leads));
+    buscarLeads(); // Chama a função de busca para renderizar os cartões filtrados ou todos
+}
+
+function buscarLeads() {
+    const buscaInput = document.getElementById('busca');
+    const termo = buscaInput ? buscaInput.value.toLowerCase() : '';
     
     document.getElementById('col-contato').innerHTML = '';
     document.getElementById('col-proposta').innerHTML = '';
     document.getElementById('col-fechado').innerHTML = '';
 
     leads.forEach(lead => {
-        const card = document.createElement('div');
-        card.className = "bg-gray-700 p-4 rounded-lg border border-gray-600 shadow-md drag-card";
-        card.draggable = true;
-        card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
-        
-        card.innerHTML = `
-            <h4 class="font-bold text-white">${lead.nome}</h4>
-            <p class="text-sm text-green-400 font-medium">R$ ${lead.valor}</p>
-            <p class="text-xs text-gray-400 mt-1">${lead.notas}</p>
-            <button onclick="excluirLead('${lead.id}')" class="text-xs text-red-400 mt-2 block hover:underline">Excluir</button>
-        `;
+        const correspondeNome = lead.nome.toLowerCase().includes(termo);
+        const correspondeNotas = lead.notas && lead.notas.toLowerCase().includes(termo);
 
-        document.getElementById(`col-${lead.etapa}`).appendChild(card);
+        if (correspondeNome || correspondeNotas) {
+            const card = document.createElement('div');
+            card.className = "bg-gray-700 p-4 rounded-lg border border-gray-600 shadow-md drag-card";
+            card.draggable = true;
+            card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
+            
+            card.innerHTML = `
+                <h4 class="font-bold text-white text-base">${lead.nome}</h4>
+                <p class="text-sm text-green-400 font-medium mt-1">R$ ${lead.valor}</p>
+                <p class="text-xs text-gray-400 mt-2 bg-gray-800 p-2 rounded">${lead.notas || 'Sem anotações'}</p>
+                <div class="mt-3 flex justify-between items-center border-t border-gray-600 pt-2">
+                    <button onclick="mudarEtapa('${lead.id}')" class="text-xs text-indigo-400 hover:underline cursor-pointer">Mover Etapa</button>
+                    <button onclick="excluirLead('${lead.id}')" class="text-xs text-red-400 hover:underline cursor-pointer">Excluir</button>
+                </div>
+            `;
+
+            document.getElementById(`col-${lead.etapa}`).appendChild(card);
+        }
     });
+}
+
+// Função auxiliar para celulares (onde arrastar com o dedo é difícil)
+function mudarEtapa(id) {
+    leads = leads.map(lead => {
+        if (lead.id === id) {
+            if (lead.etapa === 'contato') lead.etapa = 'proposta';
+            else if (lead.etapa === 'proposta') lead.etapa = 'fechado';
+            else lead.etapa = 'contato';
+        }
+        return lead;
+    });
+    atualizarCRM();
 }
 
 function permitirSoltar(e) { e.preventDefault(); }
@@ -62,9 +89,11 @@ function soltar(e, novaEtapa) {
 }
 
 function excluirLead(id) {
-    leads = leads.filter(lead => lead.id !== id);
-    atualizarCRM();
+    if(confirm("Tem certeza que deseja excluir este cliente?")) {
+        leads = leads.filter(lead => lead.id !== id);
+        atualizarCRM();
+    }
 }
 
-// Inicializa a tela com os dados salvos
-atualizarCRM();
+// Inicializa a tela
+setTimeout(atualizarCRM, 500);
