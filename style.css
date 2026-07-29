@@ -136,6 +136,7 @@ main {
 
 @media (min-width: 768px) { main { grid-template-columns: repeat(3, 1fr); } }
 
+/* Trava principal da coluna para não deixar vazar nada */
 .coluna-kanban {
     background-color: #1e293b;
     border: 1px solid #334155;
@@ -143,37 +144,36 @@ main {
     padding: 16px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
     height: fit-content;
+    overflow: hidden; /* CORREÇÃO: Tranca tudo dentro do limite da caixa */
 }
 
-/* CONTAINER DE CARDS INTELIGENTE COM ALTURA MÁXIMA E ROLAGEM */
+/* CONTAINER DE CARDS COM ALTURA DO PRINT AJUSTADA PARA O CELULAR */
 .container-cards {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 480px; /* Limita a altura visual para caber cerca de 3 a 4 clientes por coluna */
-    overflow-y: auto;  /* Ativa a rolagem interna de forma vertical automaticamente */
+    max-height: 410px; /* Reduzido levemente para trancar exatamente após o 3º cliente */
+    overflow-y: auto !important; /* Obriga o navegador a ativar a rolagem com o dedo */
     padding-right: 4px;
 }
 
-/* Personalização sutil para a barra de rolagem interna */
+/* Esconde a barra cinza feia do navegador para ficar com visual limpo de aplicativo */
 .container-cards::-webkit-scrollbar {
-    width: 6px;
-}
-.container-cards::-webkit-scrollbar-thumb {
-    background-color: #475569;
-    border-radius: 10px;
+    width: 0px;
+    background: transparent;
 }
 
 /* Indicador visual de clientes ocultos */
 .aviso-oculto {
     text-align: center;
-    font-size: 11px;
+    font-size: 12px;
     color: #a5b4fc;
     background-color: #0f172a;
-    padding: 6px;
-    border-radius: 6px;
-    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 12px;
     border: 1px dashed #4338ca;
+    font-weight: 500;
 }
 
 /* Cartões */
@@ -188,13 +188,3 @@ main {
 .drag-card h4 { margin: 0 0 6px 0; font-size: 16px; color: #fff; }
 .drag-card .valor { color: #4ade80; font-weight: 600; font-size: 14px; margin: 0; }
 .drag-card .notas { background-color: #0f172a; padding: 8px; border-radius: 6px; font-size: 12px; color: #94a3b8; margin: 8px 0 0 0; }
-
-/* Modal */
-.modal-overlay { background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
-.modal-content {
-    background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;
-    padding: 24px; width: 100%; max-w: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-.modal-content input, .modal-content textarea {
-    width: 93%; padding: 10px; background-color: #334155; border: 1px solid #475569; border-radius: 6px; color: white; margin-bottom: 12px;
-}
