@@ -18,7 +18,7 @@ function abrirModal(id = null) {
         document.getElementById('tag').value = lead.tag || '';
         document.getElementById('data-retorno').value = lead.dataRetorno || '';
         document.getElementById('valor').value = lead.valor.toFixed(2).replace('.', ',');
-        document.getElementById('notas').value = ""; // Deixa limpo para nova nota
+        document.getElementById('notas').value = ""; 
         document.getElementById('notas').placeholder = "Adicionar nova anotação ao histórico...";
         inputIdEdit.value = id;
     } else {
@@ -67,7 +67,6 @@ function salvarLead() {
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');  
 
-    // CORREÇÃO: Trata valores como 1.500,00 corretamente
     const valorNumerico = parseFloat(valorInput.replace(/\./g, '').replace(',', '.')) || 0;  
 
     const dataAtual = new Date().toLocaleDateString('pt-BR', {  
@@ -75,7 +74,6 @@ function salvarLead() {
     });  
 
     if (idEdicao) {
-        // MODO EDIÇÃO
         leads = leads.map(lead => {
             if (lead.id === idEdicao) {
                 if (notasTexto !== "") {
@@ -87,7 +85,6 @@ function salvarLead() {
             return lead;
         });
     } else {
-        // MODO CRIAÇÃO
         let historicoInicial = [];
         if (notasTexto !== "") {
             historicoInicial.push({ data: dataAtual, texto: notasTexto });
@@ -165,7 +162,6 @@ function buscarLeads() {
     const tagFiltroInput = document.getElementById('filtro-tag-topo');
     const termoTag = tagFiltroInput ? tagFiltroInput.value : '';
 
-    // NOVA LÓGICA DO FILTRO DE MÊS
     const mesFiltroInput = document.getElementById('filtro-mes');
     const mesFiltroValor = mesFiltroInput ? mesFiltroInput.value : ''; 
     let mesFiltroFormatado = '';
@@ -195,7 +191,6 @@ function buscarLeads() {
     document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());  
 
     leads.forEach(lead => {  
-        // FILTRO DE MÊS APLICADO AQUI
         if (mesFiltroFormatado && lead.data) {
             const dataQuebrada = lead.data.split(',')[0].split('/'); 
             const mesAnoLead = `${dataQuebrada[1]}/${dataQuebrada[2]}`;
@@ -469,4 +464,14 @@ function soltar(e, novaEtapa) {
             return {
                 ...lead,
                 etapa: novaEtapa,
-                timestampMudancaEtapa: Date.now
+                timestampMudancaEtapa: Date.now(),
+                timestampFechamento: novaEtapa === 'fechado' ? Date.now() : null
+            };
+        }
+        return lead;
+    });
+    atualizarCRM();
+}
+
+function excluirLead(id) {
+    if(confirm("Tem 
