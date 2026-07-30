@@ -5,23 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>CacauCrm</title>  
     <style>  
+        :root {
+            --bg-base: #070a13;
+            --bg-surface: #0f172a;
+            --bg-card: #151e32;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
         body {  
-            background-color: #090d16 !important;  
-            color: #f1f5f9 !important;  
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;  
+            background-color: var(--bg-base) !important;  
+            color: var(--text-main) !important;  
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;  
             margin: 0;  
             padding: 0;  
             -webkit-font-smoothing: antialiased;
         }  
+
         header {  
-            background-color: #111827;  
-            border-bottom: 1px solid #1f2937;  
+            background-color: var(--bg-surface);  
+            border-bottom: 1px solid var(--border-subtle);  
             padding: 20px 24px;  
             display: flex;  
             flex-direction: column;  
             gap: 16px;  
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
         }  
+
         .topo-logo-meta {  
             display: flex;  
             flex-direction: column;  
@@ -31,16 +43,34 @@
         @media (min-width: 768px) {  
             .topo-logo-meta { flex-direction: row; justify-content: space-between; align-items: center; }  
         }  
-        header h1 { font-size: 24px; font-weight: 800; color: #818cf8; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }  
-        header h1::before { content: '🍫'; font-size: 20px; }
+
+        header h1 { 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: #818cf8; 
+            margin: 0; 
+            letter-spacing: -0.5px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }  
+        header h1::before { 
+            content: '🍫'; 
+            font-size: 20px; 
+            background: rgba(99, 102, 241, 0.15);
+            padding: 6px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
 
         .topo-acoes { display: flex; flex-direction: column; gap: 10px; width: 100%; }  
         @media (min-width: 640px) {  
             .topo-acoes { flex-direction: row; justify-content: flex-end; align-items: center; flex-wrap: wrap; }  
         }  
+
         .painel-meta {  
-            background-color: #0d1322;  
-            border: 1px solid #1e293b;  
+            background-color: #0b1120;  
+            border: 1px solid var(--border-subtle);  
             border-radius: 12px;  
             padding: 12px 16px;  
             display: flex;  
@@ -49,57 +79,91 @@
             min-width: 280px;  
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }  
-        .meta-texto { font-size: 13px; display: flex; justify-content: space-between; font-weight: 500; }  
+        .meta-texto { font-size: 13px; display: flex; justify-content: space-between; font-weight: 500; color: var(--text-muted); }  
         .barra-meta-fundo { background-color: #1e293b; border-radius: 6px; height: 8px; width: 100%; overflow: hidden; }  
         .barra-meta-progresso { background: linear-gradient(90deg, #6366f1, #34d399); height: 100%; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px; }  
         .btn-meta { background: none; border: none; color: #a5b4fc; font-size: 11px; cursor: pointer; text-align: right; padding: 0; text-decoration: underline; font-weight: 500; transition: color 0.2s; }  
         .btn-meta:hover { color: #fff; }
         
         .dashboard-container {
-            background-color: #111827;
-            border: 1px solid #1f2937;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
             border-radius: 14px;
             padding: 16px 24px;
             margin: 24px 24px 0 24px;
             display: grid;
             grid-template-columns: 1fr;
             gap: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         @media (min-width: 768px) {
             .dashboard-container { grid-template-columns: repeat(2, 1fr); }
         }
         .dash-card {
-            background-color: #090d16;
-            border: 1px solid #1e293b;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-subtle);
             border-radius: 10px;
             padding: 14px 18px;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
-        .dash-titulo { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .dash-titulo { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .dash-valor { font-size: 22px; font-weight: 800; color: #f8fafc; }
 
-        #busca, #filtro-tag-topo { padding: 10px 14px; background-color: #111827; border: 1px solid #374151; border-radius: 9px; color: #fff; font-size: 13px; outline: none; transition: all 0.2s; }  
+        #busca, #filtro-tag-topo { 
+            padding: 10px 14px; 
+            background-color: var(--bg-surface); 
+            border: 1px solid #334155; 
+            border-radius: 9px; 
+            color: #fff; 
+            font-size: 13px; 
+            outline: none; 
+            transition: all 0.2s; 
+        }  
         #busca { width: 100%; max-width: 190px; }
         #filtro-tag-topo { width: 100%; max-width: 170px; }
-        #busca:focus, #filtro-tag-topo:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }  
+        #busca:focus, #filtro-tag-topo:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }  
         
-        .btn-principal { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 10px 18px; border-radius: 9px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35); transition: all 0.2s; font-size: 13px; }  
+        .btn-principal { 
+            background: linear-gradient(135deg, #6366f1, #4f46e5); 
+            color: white; 
+            padding: 10px 18px; 
+            border-radius: 9px; 
+            font-weight: 700; 
+            border: none; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35); 
+            transition: all 0.2s; 
+            font-size: 13px; 
+        }  
         .btn-principal:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-principal:active { transform: scale(0.97); }  
 
-        .btn-secundario { background-color: #1f2937; color: #e2e8f0; padding: 10px 14px; border-radius: 9px; font-weight: 600; border: 1px solid #374151; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; transition: all 0.2s; }
+        .btn-secundario { 
+            background-color: #1e293b; 
+            color: #e2e8f0; 
+            padding: 10px 14px; 
+            border-radius: 9px; 
+            font-weight: 600; 
+            border: 1px solid #334155; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            font-size: 13px; 
+            transition: all 0.2s; 
+        }
         .btn-secundario:active { transform: scale(0.97); }
-        .btn-secundario:hover { background-color: #374151; color: #fff; border-color: #4b5563; }
+        .btn-secundario:hover { background-color: #334155; color: #fff; border-color: #475569; }
         
         main { padding: 24px; display: grid; grid-template-columns: 1fr; gap: 24px; }  
         @media (min-width: 768px) { main { grid-template-columns: repeat(3, 1fr); } }  
         
         .coluna-kanban {  
-            background-color: #111827 !important;  
-            border: 1px solid #1f2937 !important;  
+            background-color: var(--bg-surface) !important;  
+            border: 1px solid var(--border-subtle) !important;  
             border-radius: 16px !important;  
             padding: 16px !important;  
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;  
@@ -120,24 +184,28 @@
             scrollbar-width: none;  
             -ms-overflow-style: none;  
         }  
-        .container-cards::-webkit-scrollbar {   
-            display: none !important;  
-            width: 0px;   
-            background: transparent;   
-        }  
+        .container-cards::-webkit-scrollbar { display: none !important; width: 0px; background: transparent; }  
           
-        .aviso-oculto { text-align: center; font-size: 12px; color: #a5b4fc; background-color: #090d16; padding: 12px; border-radius: 10px; margin-top: 12px; border: 1px dashed #4338ca; font-weight: 600; transition: background 0.2s; }  
-        .aviso-oculto:hover { background-color: #111827; }
+        .aviso-oculto { text-align: center; font-size: 12px; color: #a5b4fc; background-color: var(--bg-base); padding: 12px; border-radius: 10px; margin-top: 12px; border: 1px dashed #4338ca; font-weight: 600; transition: background 0.2s; }  
+        .aviso-oculto:hover { background-color: var(--bg-surface); }
 
-        .drag-card { background-color: #1a2234 !important; border: 1px solid #2d3748 !important; border-radius: 12px !important; padding: 16px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important; cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }  
-        .drag-card:hover { border-color: #4a5568; box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
+        .drag-card { 
+            background-color: var(--bg-card) !important;  
+            border: 1px solid var(--border-subtle) !important;  
+            border-radius: 12px !important;  
+            padding: 16px !important;  
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;  
+            cursor: grab; 
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; 
+        }  
+        .drag-card:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
         .drag-card:active { cursor: grabbing; }
 
         .drag-card h4 { margin: 0 0 4px 0; font-size: 15px; color: #fff; font-weight: 700; letter-spacing: -0.2px; }  
         .drag-card .valor { color: #34d399; font-weight: 700; font-size: 14px; margin: 0; }  
         
-        .historico-container { background-color: #090d16; padding: 10px; border-radius: 8px; margin: 10px 0 0 0; max-height: 95px; overflow-y: auto; border: 1px solid #1e293b; }
-        .nota-item { font-size: 11px; color: #94a3b8; border-bottom: 1px solid #131b2e; padding-bottom: 6px; margin-bottom: 6px; line-height: 1.4; }
+        .historico-container { background-color: var(--bg-base); padding: 10px; border-radius: 8px; margin: 10px 0 0 0; max-height: 95px; overflow-y: auto; border: 1px solid var(--border-subtle); }
+        .nota-item { font-size: 11px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px; margin-bottom: 6px; line-height: 1.4; }
         .nota-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .nota-data { color: #818cf8; font-weight: 600; display: block; margin-bottom: 2px; }
           
@@ -174,8 +242,8 @@
 
         /* Gaveta Escondida (Sem Resposta) */
         .gaveta-container {
-            background-color: #111827;
-            border: 1px solid #1f2937;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
             border-radius: 16px;
             padding: 24px;
             margin: 24px 24px 0 24px;
@@ -193,10 +261,10 @@
         }
 
         .modal-overlay { background-color: rgba(3, 7, 18, 0.8); backdrop-filter: blur(6px); }  
-        .modal-content { background-color: #111827; border: 1px solid #1f2937; border-radius: 20px; padding: 28px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }  
-        .modal-content input, .modal-content textarea, .modal-content select { width: 94%; padding: 12px 14px; background-color: #090d16; border: 1px solid #374151; border-radius: 9px; color: white; margin-bottom: 14px; font-size: 13px; outline: none; transition: border-color 0.2s; }  
-        .modal-content input:focus, .modal-content textarea:focus, .modal-content select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
-        .campo-label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 6px; font-weight: 600; }
+        .modal-content { background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 20px; padding: 28px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }  
+        .modal-content input, .modal-content textarea, .modal-content select { width: 94%; padding: 12px 14px; background-color: var(--bg-base); border: 1px solid #334155; border-radius: 9px; color: white; margin-bottom: 14px; font-size: 13px; outline: none; transition: border-color 0.2s; }  
+        .modal-content input:focus, .modal-content textarea:focus, .modal-content select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+        .campo-label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600; }
     </style>
 </head>  
 <body>  
@@ -206,7 +274,7 @@
         <div class="painel-meta" id="painel-meta-container">  
             <div class="meta-texto">  
                 <span>Contratos Fechados: <strong id="faturamento-fechado" style="color: #34d399;">0</strong></span>  
-                <span style="color: #94a3b8;">/ Meta: <strong id="valor-meta">0</strong></span>  
+                <span style="color: var(--text-muted);">/ Meta: <strong id="valor-meta">0</strong></span>  
             </div>  
             <div class="barra-meta-fundo">  
                 <div id="barra-meta-progresso" class="barra-meta-progresso"></div>  
@@ -251,9 +319,9 @@
 <section id="secao-gaveta" class="gaveta-container">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="color: #f87171; margin: 0; font-size: 18px; font-weight: 700;">📭 Clientes Sem Resposta / Arquivados Automáticos</h3>
-        <button onclick="alternarGavetaSemResposta()" style="background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; font-weight: bold; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">✕ Fechar</button>
+        <button onclick="alternarGavetaSemResposta()" style="background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; font-weight: bold; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'">✕ Fechar</button>
     </div>
-    <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 0 0; line-height: 1.5;">Estes clientes passaram de 5 dias sem avanço no Kanban principal. Caso voltem a interagir ou você feche o contrato, basta movê-los de volta!</p>
+    <p style="font-size: 12px; color: var(--text-muted); margin: 6px 0 0 0; line-height: 1.5;">Estes clientes passaram de 5 dias sem avanço no Kanban principal. Caso voltem a interagir ou você feche o contrato, basta movê-los de volta!</p>
     <div id="col-sem-resposta" class="gaveta-grid"></div>
 </section>
 
@@ -299,7 +367,7 @@
         <textarea id="notas" placeholder="Primeira anotação..." style="height: 70px; resize: none; font-family: inherit;"></textarea>  
         
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">  
-            <button onclick="fecharModal()" style="background-color: #374151; color: white; padding: 10px 16px; border-radius: 9px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#4b5563'" onmouseout="this.style.backgroundColor='#374151'">Cancelar</button>  
+            <button onclick="fecharModal()" style="background-color: #334155; color: white; padding: 10px 16px; border-radius: 9px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#475569'" onmouseout="this.style.backgroundColor='#334155'">Cancelar</button>  
             <button onclick="salvarLead()" class="btn-principal" style="padding: 10px 18px;">Salvar Lead</button>  
         </div>  
     </div>  
@@ -318,7 +386,7 @@
     }  
 </script>  
 
-<script src="./script.js?v=30"></script>
+<script src="./script.js?v=30.1"></script>
 
 </body>  
 </html>
