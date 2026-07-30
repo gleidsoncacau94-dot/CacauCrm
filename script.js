@@ -1,10 +1,20 @@
+let leadEmEdicaoId = null; // Variável para controlar edição
 let leads = JSON.parse(localStorage.getItem('crm_leads')) || [];
 let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
 
 let colunasExpandidas = { contato: false, proposta: false, fechado: false };
 let gavetaAberta = false;
 
+// Função de segurança extra contra inserção de códigos maliciosos nos textos
+function sanitizar(texto) {
+    if (!texto) return '';
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
+}
+
 function abrirModal() {
+    document.getElementById('titulo-modal').innerText = 'Cadastrar Novo Lead';
     document.getElementById('modal').style.display = 'flex';
 }
 
@@ -14,6 +24,7 @@ function fecharModal() {
 }
 
 function limparCampos() {
+    leadEmEdicaoId = null; // Reseta a edição
     document.getElementById('nome').value = '';
     document.getElementById('telefone').value = '';
     document.getElementById('tag').value = '';
@@ -31,6 +42,23 @@ function configurarMeta() {
     }
 }
 
+function editarLead(id) {
+    const lead = leads.find(l => l.id === id);
+    if (!lead) return;
+
+    leadEmEdicaoId = id; // Marca qual lead estamos editando
+    
+    document.getElementById('titulo-modal').innerText = 'Editar Cliente';
+    document.getElementById('nome').value = lead.nome;
+    document.getElementById('telefone').value = lead.telefone || '';
+    document.getElementById('tag').value = lead.tag || '';
+    document.getElementById('data-retorno').value = lead.dataRetorno || '';
+    document.getElementById('valor').value = lead.valor || '';
+    document.getElementById('notas').value = ''; // Limpamos a nota para não duplicar, usuário pode inserir nota extra se quiser
+    
+    document.getElementById('modal').style.display = 'flex';
+}
+
 function salvarLead() {
     const nome = document.getElementById('nome').value;
     const telefone = document.getElementById('telefone').value.replace(/\D/g, '');
@@ -41,36 +69,49 @@ function salvarLead() {
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');  
 
-    const valorNumerico = parseFloat(valorInput.replace(/[^\d,.-]/g, '').replace(',', '.')) ||  0;  
+    const valorNumerico = parseFloat(valorInput.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;  
 
     const dataAtual = new Date().toLocaleDateString('pt-BR', {  
         day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'  
     });  
 
-    let historicoInicial = [];
-    if (notasTexto !== "") {
-        historicoInicial.push({
-            data: dataAtual,
-            texto: notasTexto
+    if (leadEmEdicaoId) {
+        // MODO EDIÇÃO: Atualiza lead existente
+        leads = leads.map(lead => {
+            if (lead.id === leadEmEdicaoId) {
+                const leadAtualizado = { ...lead, nome, telefone, tag, dataRetorno, valor: valorNumerico };
+                if (notasTexto !== "") {
+                    if (!leadAtualizado.historico) leadAtualizado.historico = [];
+                    leadAtualizado.historico.unshift({ data: dataAtual, texto: notasTexto });
+                }
+                return leadAtualizado;
+            }
+            return lead;
         });
+    } else {
+        // MODO CRIAÇÃO: Cria novo lead
+        let historicoInicial = [];
+        if (notasTexto !== "") {
+            historicoInicial.push({ data: dataAtual, texto: notasTexto });
+        }
+
+        const novoLead = {  
+            id: Date.now().toString(),  
+            nome,  
+            telefone,   
+            tag,
+            dataRetorno,
+            valor: valorNumerico,  
+            historico: historicoInicial,  
+            etapa: 'contato',  
+            data: dataAtual,
+            timestampCriacao: Date.now(),
+            timestampMudancaEtapa: Date.now(),
+            timestampFechamento: null
+        };  
+        leads.push(novoLead);  
     }
 
-    const novoLead = {  
-        id: Date.now().toString(),  
-        nome,  
-        telefone,   
-        tag,
-        dataRetorno,
-        valor: valorNumerico,  
-        historico: historicoInicial,  
-        etapa: 'contato',  
-        data: dataAtual,
-        timestampCriacao: Date.now(),
-        timestampMudancaEtapa: Date.now(),
-        timestampFechamento: null
-    };  
-
-    leads.push(novoLead);  
     atualizarCRM();  
     fecharModal();
 }
@@ -101,7 +142,6 @@ function atualizarCRM() {
     const agora = Date.now();
     const limiteDiasEmMs = 5 * 24 * 60 * 60 * 1000;
 
-    // Em vez de apagar, movemos automaticamente para a etapa 'sem-resposta' se passar de 5 dias e não estiver fechado
     leads = leads.map(lead => {
         if (lead.etapa !== 'fechado' && lead.etapa !== 'sem-resposta') {
             const baseTempo = lead.timestampMudancaEtapa || lead.timestampCriacao || parseInt(lead.id);
@@ -155,7 +195,22 @@ function buscarLeads() {
 
     document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());  
 
-    leads.forEach(lead => {  
+    // LÓGICA DE ORDENAÇÃO
+    const ordenacaoSelecionada = document.getElementById('ordenacao') ? document.getElementById('ordenacao').value : 'padrao';
+    let leadsOrdenados = [...leads]; 
+
+    if (ordenacaoSelecionada === 'maior_valor') {
+        leadsOrdenados.sort((a, b) => (b.valor || 0) - (a.valor || 0));
+    } else if (ordenacaoSelecionada === 'retorno_prox') {
+        leadsOrdenados.sort((a, b) => {
+            if (!a.dataRetorno) return 1; 
+            if (!b.dataRetorno) return -1;
+            return new Date(a.dataRetorno) - new Date(b.dataRetorno);
+        });
+    }
+
+    // ITERAR SOBRE A LISTA ORDENADA
+    leadsOrdenados.forEach(lead => {  
         if (lead.etapa === 'fechado') {
             totalFechadosContagem++;
 
@@ -218,11 +273,11 @@ function buscarLeads() {
             
             card.style.borderLeft = `5px solid ${corSla}`;
               
-            const valorFormatado = lead.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });  
+            const valorFormatado = (lead.valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });  
 
             let botaoWhatsHTML = '';  
             if (lead.telefone) {  
-                botaoWhatsHTML = `<button onclick="dispararWhatsapp('${lead.telefone}', '${lead.nome}')" class="btn-whatsapp">💬 WhatsApp</button>`;  
+                botaoWhatsHTML = `<button onclick="dispararWhatsapp('${sanitizar(lead.telefone)}', '${sanitizar(lead.nome)}')" class="btn-whatsapp">💬 WhatsApp</button>`;  
             }  
 
             let infoTempo = '';
@@ -243,7 +298,7 @@ function buscarLeads() {
                 if(lead.tag === 'Cliente Ligação') classeTag = 'tag-ligacao';
                 if(lead.tag === 'Cliente WhatsApp') classeTag = 'tag-whatsapp';
                 if(lead.tag === 'Vai pensar com terceiros') classeTag = 'tag-terceiros';
-                badgeTag = `<div class="tag-badge ${classeTag}">${lead.tag}</div>`;
+                badgeTag = `<div class="tag-badge ${classeTag}">${sanitizar(lead.tag)}</div>`;
             }
 
             let badgeDataRetorno = '';
@@ -281,8 +336,8 @@ function buscarLeads() {
                 listaNotas.forEach(nota => {
                     htmlHistorico += `
                         <div class="nota-item">
-                            <span class="nota-data">${nota.data}:</span>
-                            <span>${nota.texto}</span>
+                            <span class="nota-data">${sanitizar(nota.data)}:</span>
+                            <span>${sanitizar(nota.texto)}</span>
                         </div>
                     `;
                 });
@@ -299,7 +354,7 @@ function buscarLeads() {
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">  
                     <div>
                         ${badgeTag}
-                        <h4 style="font-weight: bold; margin: 0;">${lead.nome}</h4>  
+                        <h4 style="font-weight: bold; margin: 0;">${sanitizar(lead.nome)}</h4>  
                     </div>
                     ${botaoWhatsHTML}  
                 </div>  
@@ -318,7 +373,10 @@ function buscarLeads() {
 
                 <div class="card-acoes" style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">  
                     ${botaoMoverEspecial}  
-                    <button onclick="excluirLead('${lead.id}')" style="color: #f87171; text-decoration: underline; background: none; border: none; font-size: 12px; cursor: pointer;">Excluir</button>  
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="editarLead('${lead.id}')" style="color: #fbbf24; text-decoration: underline; background: none; border: none; font-size: 12px; cursor: pointer;">Editar</button>  
+                        <button onclick="excluirLead('${lead.id}')" style="color: #f87171; text-decoration: underline; background: none; border: none; font-size: 12px; cursor: pointer;">Excluir</button>  
+                    </div>
                 </div>  
             `;  
 
@@ -412,86 +470,4 @@ function mudarEtapa(id) {
 
             return {
                 ...lead,
-                etapa: novaEtapa,
-                timestampMudancaEtapa: Date.now(),
-                timestampFechamento: novaEtapa === 'fechado' ? Date.now() : null
-            };
-        }
-        return lead;
-    });
-    atualizarCRM();
-}
-
-function permitirSoltar(e) { e.preventDefault(); }
-
-function soltar(e, novaEtapa) {
-    e.preventDefault();
-    const id = e.dataTransfer.getData('text/plain');
-    leads = leads.map(lead => {
-        if (lead.id === id) {
-            return {
-                ...lead,
-                etapa: novaEtapa,
-                timestampMudancaEtapa: Date.now(),
-                timestampFechamento: novaEtapa === 'fechado' ? Date.now() : null
-            };
-        }
-        return lead;
-    });
-    atualizarCRM();
-}
-
-function excluirLead(id) {
-    if(confirm("Tem certeza que deseja excluir este cliente?")) {
-        leads = leads.filter(lead => lead.id !== id);
-        atualizarCRM();
-    }
-}
-
-function exportarBackup() {
-    const backupDados = {
-        leads: leads,
-        metaContratos: metaContratos,
-        dataBackup: new Date().toLocaleString('pt-BR')
-    };
-
-    const blob = new Blob([JSON.stringify(backupDados, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `CacauCRM_Backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`;
-    a.click();
-    
-    URL.revokeObjectURL(url);
-}
-
-function importarBackup() {
-    document.getElementById('input-importar').click();
-}
-
-function processarImportacao(event) {
-    const arquivo = event.target.files[0];
-    if (!arquivo) return;
-
-    const leitor = new FileReader();
-    leitor.onload = function(e) {
-        try {
-            const backup = JSON.parse(e.target.result);
-            if (backup.leads !== undefined) {
-                if(confirm("Atenção: Isso vai substituir os clientes atuais da tela pelos do backup. Deseja continuar?")) {
-                    leads = backup.leads;
-                    metaContratos = backup.metaContratos || 0;
-                    localStorage.setItem('crm_leads', JSON.stringify(leads));
-                    localStorage.setItem('crm_meta_contratos', metaContratos);
-                    atualizarCRM();
-                    alert("✅ Backup restaurado com sucesso!");
-                }
-            } else { alert("❌ Arquivo de backup inválido. Tente outro arquivo."); }
-        } catch (erro) { alert("❌ Ocorreu um erro ao ler o arquivo."); }
-        event.target.value = '';
-    };
-    leitor.readAsText(arquivo);
-}
-
-setTimeout(atualizarCRM, 300);
+                et
