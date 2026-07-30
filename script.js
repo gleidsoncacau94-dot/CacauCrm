@@ -474,4 +474,4 @@ function soltar(e, novaEtapa) {
 }
 
 function excluirLead(id) {
-    if(confirm("Tem
+    if(confirm("Tem 
