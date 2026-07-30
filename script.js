@@ -4,8 +4,32 @@ let metaContratos = parseInt(localStorage.getItem('crm_meta_contratos')) || 0;
 let colunasExpandidas = { contato: false, proposta: false, fechado: false };
 let gavetaAberta = false;
 
-function abrirModal() {
-    document.getElementById('modal').style.display = 'flex';
+function abrirModal(id = null) {
+    const modal = document.getElementById('modal');
+    const titulo = document.getElementById('modal-titulo');
+    const inputIdEdit = document.getElementById('lead-id-edit');
+
+    if (id) {
+        // MODO EDIÇÃO
+        titulo.innerText = "Editar Lead";
+        const lead = leads.find(l => l.id === id);
+        document.getElementById('nome').value = lead.nome;
+        document.getElementById('telefone').value = lead.telefone;
+        document.getElementById('tag').value = lead.tag || '';
+        document.getElementById('data-retorno').value = lead.dataRetorno || '';
+        document.getElementById('valor').value = lead.valor.toFixed(2).replace('.', ',');
+        document.getElementById('notas').value = ""; // Deixa limpo para nova nota
+        document.getElementById('notas').placeholder = "Adicionar nova anotação ao histórico...";
+        inputIdEdit.value = id;
+    } else {
+        // MODO CRIAÇÃO
+        titulo.innerText = "Cadastrar Novo Lead";
+        limparCampos();
+        inputIdEdit.value = "";
+        document.getElementById('notas').placeholder = "Primeira anotação...";
+    }
+    
+    modal.style.display = 'flex';
 }
 
 function fecharModal() {
@@ -20,6 +44,7 @@ function limparCampos() {
     document.getElementById('data-retorno').value = '';
     document.getElementById('valor').value = '';
     document.getElementById('notas').value = '';
+    document.getElementById('lead-id-edit').value = '';
 }
 
 function configurarMeta() {
@@ -32,6 +57,7 @@ function configurarMeta() {
 }
 
 function salvarLead() {
+    const idEdicao = document.getElementById('lead-id-edit').value;
     const nome = document.getElementById('nome').value;
     const telefone = document.getElementById('telefone').value.replace(/\D/g, '');
     const tag = document.getElementById('tag').value;
@@ -41,36 +67,41 @@ function salvarLead() {
 
     if (!nome) return alert('Digite ao menos o nome do cliente!');  
 
-    const valorNumerico = parseFloat(valorInput.replace(/[^\d,.-]/g, '').replace(',', '.')) ||  0;  
+    // CORREÇÃO: Trata valores como 1.500,00 corretamente
+    const valorNumerico = parseFloat(valorInput.replace(/\./g, '').replace(',', '.')) || 0;  
 
     const dataAtual = new Date().toLocaleDateString('pt-BR', {  
         day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'  
     });  
 
-    let historicoInicial = [];
-    if (notasTexto !== "") {
-        historicoInicial.push({
-            data: dataAtual,
-            texto: notasTexto
+    if (idEdicao) {
+        // MODO EDIÇÃO
+        leads = leads.map(lead => {
+            if (lead.id === idEdicao) {
+                if (notasTexto !== "") {
+                    if (!lead.historico) lead.historico = [];
+                    lead.historico.unshift({ data: dataAtual, texto: notasTexto });
+                }
+                return { ...lead, nome, telefone, tag, dataRetorno, valor: valorNumerico };
+            }
+            return lead;
         });
+    } else {
+        // MODO CRIAÇÃO
+        let historicoInicial = [];
+        if (notasTexto !== "") {
+            historicoInicial.push({ data: dataAtual, texto: notasTexto });
+        }
+
+        const novoLead = {  
+            id: Date.now().toString(),  
+            nome, telefone, tag, dataRetorno, valor: valorNumerico,  
+            historico: historicoInicial, etapa: 'contato', data: dataAtual,
+            timestampCriacao: Date.now(), timestampMudancaEtapa: Date.now(), timestampFechamento: null
+        };  
+        leads.push(novoLead);  
     }
 
-    const novoLead = {  
-        id: Date.now().toString(),  
-        nome,  
-        telefone,   
-        tag,
-        dataRetorno,
-        valor: valorNumerico,  
-        historico: historicoInicial,  
-        etapa: 'contato',  
-        data: dataAtual,
-        timestampCriacao: Date.now(),
-        timestampMudancaEtapa: Date.now(),
-        timestampFechamento: null
-    };  
-
-    leads.push(novoLead);  
     atualizarCRM();  
     fecharModal();
 }
@@ -101,7 +132,6 @@ function atualizarCRM() {
     const agora = Date.now();
     const limiteDiasEmMs = 5 * 24 * 60 * 60 * 1000;
 
-    // Em vez de apagar, movemos automaticamente para a etapa 'sem-resposta' se passar de 5 dias e não estiver fechado
     leads = leads.map(lead => {
         if (lead.etapa !== 'fechado' && lead.etapa !== 'sem-resposta') {
             const baseTempo = lead.timestampMudancaEtapa || lead.timestampCriacao || parseInt(lead.id);
@@ -135,6 +165,15 @@ function buscarLeads() {
     const tagFiltroInput = document.getElementById('filtro-tag-topo');
     const termoTag = tagFiltroInput ? tagFiltroInput.value : '';
 
+    // NOVA LÓGICA DO FILTRO DE MÊS
+    const mesFiltroInput = document.getElementById('filtro-mes');
+    const mesFiltroValor = mesFiltroInput ? mesFiltroInput.value : ''; 
+    let mesFiltroFormatado = '';
+    if (mesFiltroValor) {
+        const [ano, mes] = mesFiltroValor.split('-');
+        mesFiltroFormatado = `${mes}/${ano}`; 
+    }
+
     document.getElementById('col-contato').innerHTML = '';  
     document.getElementById('col-proposta').innerHTML = '';  
     document.getElementById('col-fechado').innerHTML = '';  
@@ -149,13 +188,22 @@ function buscarLeads() {
     let contadores = { contato: 0, proposta: 0, fechado: 0, 'sem-resposta': 0 };  
     let etapasComMatch = { contato: false, proposta: false, fechado: false };  
 
-    let totalLeadsHistorico = leads.length;
+    let totalLeadsHistorico = 0;
     let totalFechadosContagem = 0;
     let somaDiasFechamento = 0;
 
     document.querySelectorAll('.aviso-oculto').forEach(el => el.remove());  
 
     leads.forEach(lead => {  
+        // FILTRO DE MÊS APLICADO AQUI
+        if (mesFiltroFormatado && lead.data) {
+            const dataQuebrada = lead.data.split(',')[0].split('/'); 
+            const mesAnoLead = `${dataQuebrada[1]}/${dataQuebrada[2]}`;
+            if (mesAnoLead !== mesFiltroFormatado) return; 
+        }
+
+        totalLeadsHistorico++;
+
         if (lead.etapa === 'fechado') {
             totalFechadosContagem++;
 
@@ -170,8 +218,6 @@ function buscarLeads() {
         let correspondeNotas = false;
         if (lead.historico && Array.isArray(lead.historico)) {
             correspondeNotas = lead.historico.some(n => n.texto.toLowerCase().includes(termo));
-        } else if (lead.notas) {
-            correspondeNotas = lead.notas.toLowerCase().includes(termo);
         }
 
         const correspondeTag = termoTag === '' || lead.tag === termoTag;
@@ -272,10 +318,6 @@ function buscarLeads() {
             let htmlHistorico = '';
             let listaNotas = lead.historico || [];
             
-            if (listaNotas.length === 0 && lead.notas) {
-                listaNotas = [{ data: lead.data || 'N/A', texto: lead.notas }];
-            }
-
             if (listaNotas.length > 0) {
                 htmlHistorico += `<div class="historico-container">`;
                 listaNotas.forEach(nota => {
@@ -312,8 +354,11 @@ function buscarLeads() {
                 ${htmlHistorico}
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                    <button onclick="adicionarNota('${lead.id}')" style="color: #34d399; background: none; border: none; font-size: 11px; font-weight: 600; cursor: pointer; padding: 0;">+ Adicionar Nota</button>
-                    <span style="font-size: 10px; color: #64748b; font-style: italic;">Cadastrado: ${lead.data || 'N/A'}</span>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="adicionarNota('${lead.id}')" style="color: #34d399; background: none; border: none; font-size: 11px; font-weight: 600; cursor: pointer; padding: 0;">+ Nota</button>
+                        <button onclick="abrirModal('${lead.id}')" style="color: #fbbf24; background: none; border: none; font-size: 11px; font-weight: 600; cursor: pointer; padding: 0;">✏️ Editar</button>
+                    </div>
+                    <span style="font-size: 10px; color: #64748b; font-style: italic;">Criado: ${lead.data ? lead.data.split(',')[0] : 'N/A'}</span>
                 </div>
 
                 <div class="card-acoes" style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #475569; display: flex; justify-content: space-between;">  
@@ -387,11 +432,7 @@ function buscarLeads() {
 function restaurarDaGaveta(id) {
     leads = leads.map(lead => {
         if (lead.id === id) {
-            return {
-                ...lead,
-                etapa: 'contato',
-                timestampMudancaEtapa: Date.now()
-            };
+            return { ...lead, etapa: 'contato', timestampMudancaEtapa: Date.now() };
         }
         return lead;
     });
@@ -402,13 +443,9 @@ function mudarEtapa(id) {
     leads = leads.map(lead => {
         if (lead.id === id) {
             let novaEtapa = lead.etapa;
-            if (lead.etapa === 'contato') {
-                novaEtapa = 'proposta';
-            } else if (lead.etapa === 'proposta') {
-                novaEtapa = 'fechado';
-            } else {
-                novaEtapa = 'contato';
-            }
+            if (lead.etapa === 'contato') novaEtapa = 'proposta';
+            else if (lead.etapa === 'proposta') novaEtapa = 'fechado';
+            else novaEtapa = 'contato';
 
             return {
                 ...lead,
@@ -432,66 +469,4 @@ function soltar(e, novaEtapa) {
             return {
                 ...lead,
                 etapa: novaEtapa,
-                timestampMudancaEtapa: Date.now(),
-                timestampFechamento: novaEtapa === 'fechado' ? Date.now() : null
-            };
-        }
-        return lead;
-    });
-    atualizarCRM();
-}
-
-function excluirLead(id) {
-    if(confirm("Tem certeza que deseja excluir este cliente?")) {
-        leads = leads.filter(lead => lead.id !== id);
-        atualizarCRM();
-    }
-}
-
-function exportarBackup() {
-    const backupDados = {
-        leads: leads,
-        metaContratos: metaContratos,
-        dataBackup: new Date().toLocaleString('pt-BR')
-    };
-
-    const blob = new Blob([JSON.stringify(backupDados, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `CacauCRM_Backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`;
-    a.click();
-    
-    URL.revokeObjectURL(url);
-}
-
-function importarBackup() {
-    document.getElementById('input-importar').click();
-}
-
-function processarImportacao(event) {
-    const arquivo = event.target.files[0];
-    if (!arquivo) return;
-
-    const leitor = new FileReader();
-    leitor.onload = function(e) {
-        try {
-            const backup = JSON.parse(e.target.result);
-            if (backup.leads !== undefined) {
-                if(confirm("Atenção: Isso vai substituir os clientes atuais da tela pelos do backup. Deseja continuar?")) {
-                    leads = backup.leads;
-                    metaContratos = backup.metaContratos || 0;
-                    localStorage.setItem('crm_leads', JSON.stringify(leads));
-                    localStorage.setItem('crm_meta_contratos', metaContratos);
-                    atualizarCRM();
-                    alert("✅ Backup restaurado com sucesso!");
-                }
-            } else { alert("❌ Arquivo de backup inválido. Tente outro arquivo."); }
-        } catch (erro) { alert("❌ Ocorreu um erro ao ler o arquivo."); }
-        event.target.value = '';
-    };
-    leitor.readAsText(arquivo);
-}
-
-setTimeout(atualizarCRM, 300);
+                timestampMudancaEtapa: Date.now
